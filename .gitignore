@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.pyc
+venv/
+output/
+jobs.json
+*.docx
+*.pdf
+.DS_Store
+/tmp/
