@@ -1,0 +1,75 @@
+[project]
+name = "realestate-factory-backend"
+version = "0.1.0"
+description = "Real Estate Factory — valuation, compliance and transaction engine"
+requires-python = ">=3.12,<3.13"
+
+dependencies = [
+    "fastapi>=0.111.0",
+    "uvicorn[standard]>=0.29.0",
+    "pydantic>=2.7.0",
+    "pydantic-settings>=2.2.0",
+    "python-dotenv>=1.0.0",
+    "langgraph>=0.2.0",
+    "groq>=0.9.0",
+    "anthropic>=0.28.0",
+    "google-generativeai>=0.7.0",
+    "python-docx>=1.1.0",
+    "boto3>=1.34.0",
+    "requests>=2.31.0",
+    # S2 — Postgres + PostGIS + Alembic
+    "sqlalchemy[asyncio]>=2.0.30",
+    "asyncpg>=0.29.0",
+    "alembic>=1.13.0",
+    "geoalchemy2>=0.14.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.2.0",
+    "pytest-asyncio>=0.23.0",
+    "httpx>=0.27.0",
+    "ruff>=0.5.0",
+    "mypy>=1.10.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+# The moved prototype modules keep their original formatting until the sprint
+# that rewrites them: S6 for the parser and calculator, S10 for the graph,
+# S11 for the renderer. Lint them for correctness, not for style churn.
+extend-exclude = [
+    "app/services/graph/reGraph.py",
+    "app/services/valuation/valuationCalculator.py",
+    "app/services/ingest/propertyDataParser.py",
+    "app/services/render/docxRenderer.py",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+filterwarnings = ["ignore::FutureWarning"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+
+# The moved prototype modules are checked when the sprint that owns them rewrites
+# them: S6 for the parser and calculator, S10 for the graph, S11 for the renderer.
+# Typing them now would mean annotating code that is about to be replaced.
+[[tool.mypy.overrides]]
+module = [
+    "app.services.graph.reGraph",
+    "app.services.valuation.valuationCalculator",
+    "app.services.ingest.propertyDataParser",
+    "app.services.render.docxRenderer",
+]
+ignore_errors = true

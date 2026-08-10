@@ -1,0 +1,20 @@
+{
+  "name": "realestate-factory",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "frontend",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "yarn workspace realestate-factory-frontend dev",
+    "build": "yarn workspace realestate-factory-frontend build",
+    "lint": "yarn workspace realestate-factory-frontend lint",
+    "test": "yarn workspace realestate-factory-frontend test",
+    "typecheck": "yarn workspace realestate-factory-frontend typecheck"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "yarn@1.22.22"
+}

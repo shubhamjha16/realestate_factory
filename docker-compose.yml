@@ -1,0 +1,39 @@
+name: realestate-factory
+
+services:
+  postgres:
+    # PostGIS, not plain Postgres: properties have geometry, and comparable
+    # search is a spatial query before it is a table scan.
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: realestate
+      POSTGRES_PASSWORD: realestate
+      POSTGRES_DB: realestate
+    ports:
+      # Off the default ports so this never collides with another local Postgres.
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U realestate -d realestate"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres-data:
+  redis-data:

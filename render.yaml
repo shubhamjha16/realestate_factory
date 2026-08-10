@@ -1,0 +1,66 @@
+services:
+  - type: web
+    name: realestate-factory-api
+    runtime: python
+    region: singapore
+    plan: starter
+    rootDir: backend
+    buildCommand: pip install uv && uv sync --no-dev --frozen
+    # Migrations never run inside the web process — §9.
+    preDeployCommand: .venv/bin/alembic upgrade head
+    startCommand: .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12"
+      - key: GROQ_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: realestate-factory-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: realestate-factory-redis
+          property: connectionString
+
+  # The worker lands in S4; declared now so the topology is not a surprise then.
+  - type: worker
+    name: realestate-factory-worker
+    runtime: python
+    region: singapore
+    plan: starter
+    rootDir: backend
+    buildCommand: pip install uv && uv sync --no-dev --frozen
+    startCommand: .venv/bin/arq app.workers.arqApp.WorkerSettings
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12"
+      - key: GROQ_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: realestate-factory-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: realestate-factory-redis
+          property: connectionString
+
+  - type: redis
+    name: realestate-factory-redis
+    region: singapore
+    plan: starter
+    ipAllowList: []
+
+databases:
+  - name: realestate-factory-db
+    region: singapore
+    plan: basic-256mb
+    # PostGIS is enabled by the first migration; §9 requires the GiST indexes on
+    # geom to be hand-written, because autogenerate does not emit them.
+    postgresMajorVersion: "16"

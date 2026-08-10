@@ -1,0 +1,11 @@
+{
+  "name": "@realestate-factory/api-types",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "scripts": {
+    "generate": "echo 'Generation lands in S3 (openapi-typescript against /openapi.json)' && exit 1"
+  }
+}

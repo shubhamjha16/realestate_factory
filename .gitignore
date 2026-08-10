@@ -1,10 +1,31 @@
-.env
+# Python
 __pycache__/
-*.pyc
-venv/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# Secrets and local state
+.env
+.env.local
+.env.*
+!.env.example
+
+# Runtime artefacts
 output/
 jobs.json
-*.docx
-*.pdf
+backend/output/
+backend/jobs.json
+backend/tests/golden/artifacts/
+
+# OS / editor
 .DS_Store
-/tmp/
+*.swp
+.idea/
+.vscode/

@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  body {
+    @apply bg-white text-ink antialiased;
+  }
+  /* Figures in a rent roll or an adjustment grid must align down the column. */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}

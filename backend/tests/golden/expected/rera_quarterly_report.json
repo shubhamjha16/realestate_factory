@@ -1,0 +1,132 @@
+{
+  "doc_type": "rera_quarterly_report",
+  "parsed_format": "construction_stages",
+  "parsed_record_count": 6,
+  "computed": {
+    "type": "construction",
+    "total_stages": 6,
+    "completed_stages": 3,
+    "pending_stages": 3,
+    "overall_completion_pct": 67.83,
+    "total_disbursed": 155700000.0,
+    "pending_disbursement": 127400000.0,
+    "total_loan_amount": 0,
+    "utilisation_pct": 0,
+    "next_tranche": {
+      "stage": "Superstructure to terrace",
+      "description": "RCC frame remaining floors",
+      "completion_pct": 72.0,
+      "disbursement_amount": 56600000.0,
+      "disbursement_pct": 20.0,
+      "status": "in progress",
+      "target_date": "2026-06-30",
+      "actual_date": "",
+      "remarks": "Slab 14 of 18 cast"
+    },
+    "stage_details": [
+      {
+        "stage": "Excavation and foundation",
+        "description": "Raft foundation cast for Towers 1 and 2",
+        "completion_pct": 100.0,
+        "disbursement_amount": 42500000.0,
+        "disbursement_pct": 15.0,
+        "status": "completed",
+        "target_date": "2025-04-30",
+        "actual_date": "2025-04-22",
+        "remarks": "Certified by project architect"
+      },
+      {
+        "stage": "Plinth",
+        "description": "Plinth beams and backfilling",
+        "completion_pct": 100.0,
+        "disbursement_amount": 28300000.0,
+        "disbursement_pct": 10.0,
+        "status": "completed",
+        "target_date": "2025-07-31",
+        "actual_date": "2025-08-06",
+        "remarks": "Delayed by monsoon"
+      },
+      {
+        "stage": "Superstructure to 8th slab",
+        "description": "RCC frame Towers 1 and 2",
+        "completion_pct": 100.0,
+        "disbursement_amount": 84900000.0,
+        "disbursement_pct": 30.0,
+        "status": "completed",
+        "target_date": "2025-12-31",
+        "actual_date": "2025-12-18",
+        "remarks": "Certified"
+      },
+      {
+        "stage": "Superstructure to terrace",
+        "description": "RCC frame remaining floors",
+        "completion_pct": 72.0,
+        "disbursement_amount": 56600000.0,
+        "disbursement_pct": 20.0,
+        "status": "in progress",
+        "target_date": "2026-06-30",
+        "actual_date": "",
+        "remarks": "Slab 14 of 18 cast"
+      },
+      {
+        "stage": "Brickwork and plaster",
+        "description": "Internal and external",
+        "completion_pct": 35.0,
+        "disbursement_amount": 42500000.0,
+        "disbursement_pct": 15.0,
+        "status": "in progress",
+        "target_date": "2026-09-30",
+        "actual_date": "",
+        "remarks": "Towers 1 only"
+      },
+      {
+        "stage": "Finishing and handover",
+        "description": "Flooring fittings and OC",
+        "completion_pct": 0.0,
+        "disbursement_amount": 28300000.0,
+        "disbursement_pct": 10.0,
+        "status": "pending",
+        "target_date": "2027-03-31",
+        "actual_date": "",
+        "remarks": "Not commenced"
+      }
+    ]
+  },
+  "section_sequence": [
+    {
+      "heading": "Project Registration Particulars",
+      "type": "standard_clause"
+    },
+    {
+      "heading": "Quarterly Progress of Development Works",
+      "type": "standard_clause"
+    },
+    {
+      "heading": "Status of Booked and Unbooked Inventory",
+      "type": "standard_clause"
+    },
+    {
+      "heading": "Statutory Approvals Obtained During the Quarter",
+      "type": "standard_clause"
+    },
+    {
+      "heading": "Designated Account Position",
+      "type": "standard_clause"
+    },
+    {
+      "heading": "Declaration by the Promoter",
+      "type": "standard_clause"
+    }
+  ],
+  "clause_count": 6,
+  "document_figures": [
+    "118",
+    "2,",
+    "412207"
+  ],
+  "document_line_count": 15,
+  "document_text_sha256": "5dc44fdd63dff4046b646780d29c4c78850c7758a11046cae8e71a3b6897c6c6",
+  "doc_filename": "golden-rera-001_rera_quarterly_report.docx",
+  "generation_errors": null,
+  "llm_call_count": 6
+}

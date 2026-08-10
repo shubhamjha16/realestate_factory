@@ -1,0 +1,6 @@
+{
+  "job_id": "golden-rera-001",
+  "job_type": "rera_quarterly_report",
+  "instructions": "Prepare the rera_quarterly_report for the quarter ended 30 June 2026\nClient: Sanchay Developers Private Limited\nProperty: Sanchay Greens, Survey 118/2, Wagholi, Pune, Maharashtra 412207\nproperty type: residential group housing\nPurpose: quarterly filing with MahaRERA\nRegistration P52100051234 valid to 31 December 2028",
+  "property_data": "stage,description,completion_pct,disbursement_amount,disbursement_pct,status,target_date,actual_date,remarks\nExcavation and foundation,Raft foundation cast for Towers 1 and 2,100,42500000,15,completed,2025-04-30,2025-04-22,Certified by project architect\nPlinth,Plinth beams and backfilling,100,28300000,10,completed,2025-07-31,2025-08-06,Delayed by monsoon\nSuperstructure to 8th slab,RCC frame Towers 1 and 2,100,84900000,30,completed,2025-12-31,2025-12-18,Certified\nSuperstructure to terrace,RCC frame remaining floors,72,56600000,20,in progress,2026-06-30,,Slab 14 of 18 cast\nBrickwork and plaster,Internal and external,35,42500000,15,in progress,2026-09-30,,Towers 1 only\nFinishing and handover,Flooring fittings and OC,0,28300000,10,pending,2027-03-31,,Not commenced\n"
+}

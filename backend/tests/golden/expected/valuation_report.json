@@ -1,0 +1,63 @@
+{
+  "doc_type": "valuation_report",
+  "parsed_format": "comparables",
+  "parsed_record_count": 8,
+  "computed": {
+    "type": "comparables",
+    "comparable_count": 8,
+    "avg_rate_per_sqft": 7512.19,
+    "trimmed_avg_rate": 7499.59,
+    "min_rate_per_sqft": 6600.0,
+    "max_rate_per_sqft": 8500.0,
+    "suggested_rate": 7499.59
+  },
+  "section_sequence": [
+    {
+      "heading": "Executive Summary",
+      "type": "executive_summary"
+    },
+    {
+      "heading": "Property Description",
+      "type": "property_description"
+    },
+    {
+      "heading": "Location Analysis",
+      "type": "market_analysis"
+    },
+    {
+      "heading": "Market Analysis",
+      "type": "market_analysis"
+    },
+    {
+      "heading": "Sales Comparison Approach",
+      "type": "valuation_approach"
+    },
+    {
+      "heading": "Income Approach",
+      "type": "valuation_approach"
+    },
+    {
+      "heading": "Cost Approach",
+      "type": "valuation_approach"
+    },
+    {
+      "heading": "Reconciliation of Value",
+      "type": "valuation_approach"
+    },
+    {
+      "heading": "Conclusion & Certificate",
+      "type": "conclusion"
+    }
+  ],
+  "clause_count": 9,
+  "document_figures": [
+    "14,",
+    "62,",
+    "201309"
+  ],
+  "document_line_count": 21,
+  "document_text_sha256": "4ddbcebcf4a547b58217f90d68e48de45a863bb5e08f7050780abbed66aefa01",
+  "doc_filename": "golden-val-001_valuation_report.docx",
+  "generation_errors": null,
+  "llm_call_count": 14
+}

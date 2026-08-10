@@ -1,0 +1,61 @@
+name: backend
+
+on:
+  push:
+    branches: [main]
+    paths: ['backend/**', 'packages/api-types/**', '.github/workflows/backend.yml']
+  pull_request:
+    paths: ['backend/**', 'packages/api-types/**', '.github/workflows/backend.yml']
+
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # See backend/tests/conftest.py — the golden set needs a pinned hash seed
+  # until S10 makes prompts data.
+  PYTHONHASHSEED: '0'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - run: uv python install 3.12
+      - run: uv sync --all-groups --frozen
+
+      - name: lint
+        run: uv run ruff check .
+
+      - name: typecheck
+        run: uv run mypy app
+
+      - name: tests and golden set
+        run: uv run pytest -q
+
+      # A dependency added without re-exporting requirements.txt fails here.
+      - name: requirements.txt is in sync with uv.lock
+        run: |
+          uv export --no-hashes --no-dev --no-emit-project -o /tmp/requirements.txt
+          diff -u requirements.txt /tmp/requirements.txt
+
+      - name: dependency audit
+        run: uv run --with pip-audit pip-audit --strict -r requirements.txt
+
+      # Blocking from S2, when the first monetary columns land. Kept here from S1
+      # so it is never something that has to be argued for later.
+      - name: no monetary column typed Float
+        run: |
+          if grep -rnE '(sale_price|rent|amount|value|deposit|cost|inr_|price|consideration)[A-Za-z_]*.*(Float|float8|REAL|DOUBLE PRECISION)' \
+               app/models alembic/versions 2>/dev/null; then
+            echo "::error::a monetary column is typed Float — use NUMERIC(18,2)"
+            exit 1
+          fi

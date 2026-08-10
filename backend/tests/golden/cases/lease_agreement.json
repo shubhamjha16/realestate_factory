@@ -1,0 +1,6 @@
+{
+  "job_id": "golden-lease-001",
+  "job_type": "lease_agreement",
+  "instructions": "Draft a lease_agreement for commercial office space\nClient: Kestrel Analytics India Private Limited as lessee and Ardhika Estates LLP as lessor\nProperty: Unit 703, Prestige Tech Park, Outer Ring Road, Bengaluru, Karnataka 560103\nproperty type: commercial office\nPurpose: fresh grant of lease for a term of 9 years with a 3 year lock-in\nRent 185 rupees per sqft per month on 6200 sqft chargeable, escalation 15 percent every 3 years, deposit 10 months rent",
+  "property_data": ""
+}

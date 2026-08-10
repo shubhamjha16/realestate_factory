@@ -1,0 +1,6 @@
+{
+  "job_id": "golden-rentroll-001",
+  "job_type": "rent_roll_report",
+  "instructions": "Produce the rent_roll_report as at 30 June 2026\nClient: Ardhika Estates LLP\nProperty: Ardhika Square, Hosur Road, Bengaluru, Karnataka 560068\nproperty type: commercial retail and office\nPurpose: annual financial reporting and lender submission",
+  "property_data": "unit,tenant,area_sqft,monthly_rent,security_deposit,lease_start,lease_end,escalation_pct,status,overdue\nG-01,Nilaya Cafe LLP,1240,223200,1339200,2023-04-01,2028-03-31,5,occupied,0\nG-02,Sundar Pharmacy,860,146200,877200,2022-09-15,2027-09-14,5,occupied,146200\nG-03,,1105,0,0,,,0,vacant,0\n1-01,Kestrel Analytics India Private Limited,3400,595000,3570000,2024-01-01,2033-12-31,15,occupied,0\n1-02,Varuna Logistics Private Limited,2150,354750,2128500,2021-07-01,2026-06-30,10,occupied,0\n2-01,Ashwin Legal Services,1680,285600,1713600,2024-06-01,2029-05-31,12,occupied,0\n2-02,,1680,0,0,,,0,vacant,0\n3-01,Meridian Housing Finance Limited,4200,777000,4662000,2023-10-01,2030-09-30,8,occupied,388500\n"
+}
