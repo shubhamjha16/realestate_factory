@@ -62,6 +62,8 @@ docstring-parser==0.18.0
     # via anthropic
 email-validator==2.3.0
     # via realestate-factory-backend
+et-xmlfile==2.0.0
+    # via openpyxl
 fastapi==0.141.1
     # via realestate-factory-backend
 geoalchemy2==0.20.0
@@ -164,6 +166,8 @@ mako==1.4.1
     # via alembic
 markupsafe==3.0.3
     # via mako
+openpyxl==3.1.5
+    # via realestate-factory-backend
 orjson==3.11.9
     # via
     #   langgraph-sdk
