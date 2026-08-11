@@ -36,11 +36,12 @@ class Property(TimestampMixin, Base):
     )
 
     id: Mapped[uuid.UUID] = uuid_pk()
-    firm_id: Mapped[uuid.UUID | None] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("firms.id", ondelete="CASCADE"), index=True
+    firm_id: Mapped[uuid.UUID] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("firms.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    # FK added in S5 alongside the mandates table.
-    mandate_id: Mapped[uuid.UUID | None] = mapped_column(PGUUID(as_uuid=True))
+    mandate_id: Mapped[uuid.UUID | None] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("mandates.id", ondelete="SET NULL"), index=True
+    )
 
     title: Mapped[str] = mapped_column(String(300), nullable=False, default="")
     property_type: Mapped[str | None] = mapped_column(String(60))

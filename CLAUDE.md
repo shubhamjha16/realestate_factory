@@ -25,6 +25,7 @@ make api-types   # regenerate packages/api-types from the OpenAPI spec
 make lint        # ruff + eslint + the money-column guard
 make migrate     # alembic upgrade head
 make schema-sql  # render the whole schema as DDL without touching a database
+make worker      # run the arq worker against the local Redis
 ```
 
 `make help` lists everything.
@@ -79,6 +80,19 @@ rule enforced in one caller is a rule the next caller does not know about.
 backend's OpenAPI spec. Change a schema, run `make api-types`, commit the
 result — CI regenerates and diffs, so stale types fail the build.
 
+**Tenancy.** Every repository function takes a `FirmScope` and filters by it.
+`tests/test_repository_scope_guard.py` fails the build if one does not, so the
+rule is structural rather than a review item. Six functions are exempt, each
+listed in `UNSCOPED_BY_DESIGN` with the reason there is no session to scope by.
+A cross-firm read answers **404, never 403** — "you may not read this" confirms
+the row exists, and for a mandate name or a property address that confirmation
+is the leak. The firm comes from a signed token; no endpoint accepts a firm id.
+
+**Queue.** The web process writes a job row and enqueues; the arq worker runs
+the graph. Tasks are written to be safe to run twice, because at-least-once is
+what a queue gives you — `run_generation` claims the job first and leaves a
+terminal one alone.
+
 ## Things to know before you change something
 
 - **`PYTHONHASHSEED=0` is required to run the tests.** `intake_node` builds its
@@ -96,6 +110,14 @@ result — CI regenerates and diffs, so stale types fail the build.
 - **The money-column guard currently checks zero real columns.** Nothing in the
   first migration is monetary. It is proven against synthetic fixtures and
   becomes load-bearing at S6/S7, when `Decimal` and the adjustment grid land.
+- **`JWT_SECRET` has no default.** A shipped default means anyone who reads this
+  repository can mint a token for any firm. Boot fails naming it, like
+  `GROQ_API_KEY`.
+- **MFA is on by default** (`MFA_REQUIRED=true`). §11.1 is settled as IBBI and
+  bank panel valuation, so these accounts sign documents a bank or a tribunal
+  relies on. Turning it off is a deliberate act with a name.
+- **The bearer token is held in memory, never localStorage.** A token that
+  survives a tab close is one any script on the page can read.
 - **The reconciliation path and the trimmed-mean outlier handling are the two
   best things in the original prototype.** Protect both. (The trimmed mean stays
   only as a pre-adjustment sanity statistic from S7 — never as a value
@@ -105,8 +127,11 @@ result — CI regenerates and diffs, so stale types fail the build.
 
 §11 of the sprint plan lists three. Two are still open and have deadlines:
 
-1. **Which regulated basis** — IBBI/IBC, bank panel, or developer feasibility.
-   The sign-off model follows from it. **Decide before S5.**
+1. **Which regulated basis** — **settled: IBBI-registered valuation (IBC and
+   Companies Act) and bank panel valuation.** A `valuer` account cannot exist
+   without `ibbi_reg_no` and an asset class, only a partner or a registered
+   valuer may sign, S8's evidence gate has no bypass, and S13 checks the
+   registration covers the asset class.
 2. **Who maintains jurisdictional data** — RERA rules, stamp duty, circle rates,
    unit conventions. A standing cost with an owner and a review cadence.
    **Decide before S14.**
@@ -120,8 +145,12 @@ result — CI regenerates and diffs, so stale types fail the build.
 | S1 | Monorepo split + typed config | done |
 | S2 | Postgres + PostGIS, Alembic, death of `jobs.json` | done — live-DB proofs run in CI |
 | S3 | Layered HTTP + generated API types | done |
-| S4 | arq + Redis | next |
+| S4 | Real queue: arq + Redis | done |
+| S5 | Auth, firms, mandates, tenancy | done |
+| S6 | Decimal migration, units, parser hardening | next — Phase 1 begins |
 
-S2 and S3 are the last sprints before tenancy. Until S5 lands, every caller can
-read every job, and jobs carry client transaction and title data — so nothing
-real should go through this deployment yet.
+Phase 0 is complete: the foundation and tenancy are in place. **Phase 1 is where
+the product is** — nothing in Phase 2 matters if the value is not defensible, and
+today `analyse_comparables` still takes a trimmed mean of raw price-per-sqft and
+calls it a value conclusion. That is the single biggest professional exposure in
+this repository and S6/S7 are what close it.

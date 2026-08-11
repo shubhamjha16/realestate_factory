@@ -4,6 +4,109 @@
  */
 
 export interface paths {
+    "/api/v1/auth/google": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Google */
+        post: operations["google_api_v1_auth_google_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Me */
+        get: operations["me_api_v1_auth_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/mfa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mfa */
+        post: operations["mfa_api_v1_auth_mfa_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/signin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Signin */
+        post: operations["signin_api_v1_auth_signin_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/signup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Signup */
+        post: operations["signup_api_v1_auth_signup_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clients": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Clients */
+        get: operations["list_clients_api_v1_clients_get"];
+        put?: never;
+        /** Create Client */
+        post: operations["create_client_api_v1_clients_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/generate": {
         parameters: {
             query?: never;
@@ -38,6 +141,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Jobs */
+        get: operations["list_jobs_api_v1_jobs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/jobs/{job_id}": {
         parameters: {
             query?: never;
@@ -47,6 +167,41 @@ export interface paths {
         };
         /** Get Job */
         get: operations["get_job_api_v1_jobs__job_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mandates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Mandates */
+        get: operations["list_mandates_api_v1_mandates_get"];
+        put?: never;
+        /** Create Mandate */
+        post: operations["create_mandate_api_v1_mandates_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mandates/{mandate_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Mandate */
+        get: operations["get_mandate_api_v1_mandates__mandate_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -109,6 +264,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Jobs */
+        get: operations["list_jobs_jobs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/jobs/{job_id}": {
         parameters: {
             query?: never;
@@ -150,6 +322,64 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AuthResponse
+         * @description Either a session or a challenge, never both.
+         *
+         *     `mfa_required` tells the console which it received. `totp_enrolment_uri` is
+         *     present only while enrolling and never again — it carries the shared secret.
+         */
+        AuthResponse: {
+            /** Access Token */
+            access_token?: string | null;
+            /** Mfa Required */
+            mfa_required: boolean;
+            /** Mfa Token */
+            mfa_token?: string | null;
+            /** Totp Enrolment Uri */
+            totp_enrolment_uri?: string | null;
+            user?: components["schemas"]["SessionUser"] | null;
+        };
+        /** ClientResponse */
+        ClientResponse: {
+            /** Id */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Name */
+            name: string;
+        };
+        /** CreateClientRequest */
+        CreateClientRequest: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "bank" | "developer" | "nbfc" | "fund" | "individual";
+            /** Name */
+            name: string;
+        };
+        /** CreateMandateRequest */
+        CreateMandateRequest: {
+            /** Client Id */
+            client_id: string;
+            /** Due On */
+            due_on?: string | null;
+            /** Instructed On */
+            instructed_on?: string | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "valuation" | "due_diligence" | "rera" | "transaction" | "portfolio";
+            /**
+             * Purpose
+             * @enum {string}
+             */
+            purpose: "loan" | "ibc" | "dispute" | "financial_reporting" | "internal";
+            /** Valuer Id */
+            valuer_id?: string | null;
+        };
         /** GenerateRequest */
         GenerateRequest: {
             /** Basis */
@@ -167,6 +397,11 @@ export interface components {
             property_data: string;
             /** Purpose */
             purpose?: ("loan" | "ibc" | "dispute" | "financial_reporting" | "internal") | null;
+        };
+        /** GoogleSignInRequest */
+        GoogleSignInRequest: {
+            /** Id Token */
+            id_token: string;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -197,6 +432,89 @@ export interface components {
             /** Terminal At */
             terminal_at?: string | null;
         };
+        /** MandateResponse */
+        MandateResponse: {
+            /** Client Id */
+            client_id: string;
+            /** Created At */
+            created_at?: string | null;
+            /** Due On */
+            due_on?: string | null;
+            /** Id */
+            id: string;
+            /** Instructed On */
+            instructed_on?: string | null;
+            /** Kind */
+            kind: string;
+            /** Purpose */
+            purpose: string;
+            /**
+             * Requires Registered Valuer
+             * @default false
+             */
+            requires_registered_valuer: boolean;
+            /** Status */
+            status: string;
+            /** Valuer Id */
+            valuer_id?: string | null;
+        };
+        /** MfaRequest */
+        MfaRequest: {
+            /** Code */
+            code: string;
+        };
+        /** SessionUser */
+        SessionUser: {
+            /** Email */
+            email: string;
+            /** Firm Id */
+            firm_id: string;
+            /** Ibbi Reg No */
+            ibbi_reg_no?: string | null;
+            /** Id */
+            id: string;
+            /**
+             * Mfa Enabled
+             * @default false
+             */
+            mfa_enabled: boolean;
+            /** Role */
+            role: string;
+            /** Valuer Asset Class */
+            valuer_asset_class?: string | null;
+        };
+        /** SignInRequest */
+        SignInRequest: {
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** Password */
+            password: string;
+        };
+        /** SignUpRequest */
+        SignUpRequest: {
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** Firm Name */
+            firm_name: string;
+            /** Ibbi Reg No */
+            ibbi_reg_no?: string | null;
+            /** Password */
+            password: string;
+            /**
+             * Role
+             * @default partner
+             * @enum {string}
+             */
+            role: "partner" | "valuer" | "analyst" | "readonly" | "client";
+            /** Valuer Asset Class */
+            valuer_asset_class?: string | null;
+        };
         /** ValidationError */
         ValidationError: {
             /** Context */
@@ -217,12 +535,238 @@ export interface components {
     headers: never;
     pathItems: never;
 }
+export type SchemaAuthResponse = components['schemas']['AuthResponse'];
+export type SchemaClientResponse = components['schemas']['ClientResponse'];
+export type SchemaCreateClientRequest = components['schemas']['CreateClientRequest'];
+export type SchemaCreateMandateRequest = components['schemas']['CreateMandateRequest'];
 export type SchemaGenerateRequest = components['schemas']['GenerateRequest'];
+export type SchemaGoogleSignInRequest = components['schemas']['GoogleSignInRequest'];
 export type SchemaHttpValidationError = components['schemas']['HTTPValidationError'];
 export type SchemaJobStatus = components['schemas']['JobStatus'];
+export type SchemaMandateResponse = components['schemas']['MandateResponse'];
+export type SchemaMfaRequest = components['schemas']['MfaRequest'];
+export type SchemaSessionUser = components['schemas']['SessionUser'];
+export type SchemaSignInRequest = components['schemas']['SignInRequest'];
+export type SchemaSignUpRequest = components['schemas']['SignUpRequest'];
 export type SchemaValidationError = components['schemas']['ValidationError'];
 export type $defs = Record<string, never>;
 export interface operations {
+    google_api_v1_auth_google_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoogleSignInRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    me_api_v1_auth_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionUser"];
+                };
+            };
+        };
+    };
+    mfa_api_v1_auth_mfa_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MfaRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    signin_api_v1_auth_signin_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SignInRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    signup_api_v1_auth_signup_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SignUpRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_clients_api_v1_clients_get: {
+        parameters: {
+            query?: {
+                q?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_client_api_v1_clients_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateClientRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     generate_api_v1_generate_post: {
         parameters: {
             query?: never;
@@ -278,6 +822,37 @@ export interface operations {
             };
         };
     };
+    list_jobs_api_v1_jobs_get: {
+        parameters: {
+            query?: {
+                q?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobStatus"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_job_api_v1_jobs__job_id__get: {
         parameters: {
             query?: never;
@@ -296,6 +871,90 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["JobStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_mandates_api_v1_mandates_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MandateResponse"][];
+                };
+            };
+        };
+    };
+    create_mandate_api_v1_mandates_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateMandateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MandateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_mandate_api_v1_mandates__mandate_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mandate_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MandateResponse"];
                 };
             };
             /** @description Validation Error */
@@ -391,6 +1050,37 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+        };
+    };
+    list_jobs_jobs_get: {
+        parameters: {
+            query?: {
+                q?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobStatus"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

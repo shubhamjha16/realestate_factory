@@ -65,7 +65,7 @@ def test_the_name_heuristic_covers_the_obvious_cases():
                  "concluded_value", "sanctioned", "released", "stamp_duty"):
         assert is_money_name(name), name
     # ...and does not fire on things that merely read like money
-    for name in ("rent_period", "currency", "valuer_asset_class", "area_unit"):
+    for name in ("rent_period", "currency", "valuer_asset_class", "valuer_id", "area_unit"):
         assert not is_money_name(name), name
 
 

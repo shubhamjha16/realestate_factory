@@ -26,6 +26,9 @@ if os.environ.get("PYTHONHASHSEED") != "0":
 # The engine must import without a provider key present; golden runs replace the
 # LLM entirely, so the value is never used to make a call.
 os.environ.setdefault("GROQ_API_KEY", "test-no-live-calls")
+# Required from S5. A real deployment has no default; the tests need *a* value,
+# and one that is obviously not a secret.
+os.environ.setdefault("JWT_SECRET", "test-jwt-secret-not-for-any-real-use")
 
 sys.path.insert(0, str(BACKEND_ROOT))
 sys.path.insert(0, str(BACKEND_ROOT / "tests" / "golden"))

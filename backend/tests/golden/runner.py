@@ -101,6 +101,7 @@ def run_case(case_name: str, target: str, mode: str, output_dir: Path) -> dict:
     # The renderer reads OUTPUT_DIR at import time.
     os.environ["OUTPUT_DIR"] = str(output_dir)
     os.environ.setdefault("GROQ_API_KEY", "golden-run-no-live-calls")
+    os.environ.setdefault("JWT_SECRET", "golden-run-no-tokens-are-minted-here")
     os.environ.pop("S3_BUCKET", None)      # keep upload on the file:// branch
     os.environ.pop("GEMINI_API_KEY", None)  # keep vision on the no-letterhead branch
 

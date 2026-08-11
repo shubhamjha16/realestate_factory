@@ -39,6 +39,7 @@ jobs:
         env:
           # Importing the app requires it; nothing here calls a provider.
           GROQ_API_KEY: ci-no-live-calls
+          JWT_SECRET: ci-not-a-secret-0000000000000000000000
         run: |
           uv run --project backend python backend/scripts/export_openapi.py
           yarn workspace @realestate-factory/api-types generate

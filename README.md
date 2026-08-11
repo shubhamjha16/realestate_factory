@@ -39,6 +39,9 @@ make lint        # ruff + eslint + the money-column guard
 make schema-sql  # render the whole schema as DDL without touching a database
 ```
 
+`make test` needs no infrastructure. `make test-db` runs the repository, tenancy
+and queue proofs against a live PostGIS and Redis; CI runs them on every push.
+
 The golden set is four jobs — one per graph path — run with the LLM replaced by
 a recorded cassette, compared on job type, section sequence, every computed
 figure and the rendered document's hash. Figures are compared exactly; a paisa of
@@ -46,7 +49,7 @@ drift fails. See `backend/tests/golden/README.md`.
 
 ## Where this is
 
-**S3 of 21 is complete.**
+**S5 of 21 is complete — Phase 0, the foundation, is done.**
 
 - **S1** — the monorepo split, typed configuration, and the golden harness that
   proves the split changed nothing.
@@ -59,10 +62,19 @@ drift fails. See `backend/tests/golden/README.md`.
   and `packages/api-types` generated from the OpenAPI spec with a CI gate that
   fails on drift.
 
-Still ahead before anything real runs through it: **S4** replaces
-`threading.Thread` with arq, and **S5** adds auth, firms, mandates and tenancy.
-Until S5, every caller can read every job — and jobs carry client transaction and
-title data.
+- **S4** — arq and Redis replace `threading.Thread`. The web process writes a
+  job row and enqueues; a deploy no longer interrupts a valuation, and a
+  submission repeated after a dropped connection returns the same job rather
+  than generating a second deliverable.
+- **S5** — firms, users, clients and mandates, with JWT, Google sign-in and MFA
+  on by default. Tenancy is enforced at the repository layer, and a test fails
+  the build if any repository function is callable without a firm scope. A
+  cross-firm read answers 404, not 403.
+
+**Phase 1 is next, and it is the product.** Today `analyse_comparables` takes a
+trimmed mean of raw price-per-sqft and calls it a value conclusion. An unadjusted
+mean is not a valuation, and S6 (Decimal, units, parser hardening) and S7 (the
+comparable adjustment grid) are what make the figure defensible.
 
 The plan, including what is structurally wrong today and the order it gets
 fixed, is in `REALESTATE_FACTORY_SPRINTS.md`. `CLAUDE.md` is how to work in the

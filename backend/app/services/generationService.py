@@ -1,29 +1,31 @@
 """
 Generation service.
 
-Still `threading.Thread`, deliberately: S4 replaces it with an arq enqueue. What
-changed in S2 is where the job *lives* — Postgres, not a rewritten JSON file —
-so killing this process no longer erases the record of what was running.
+The web process no longer runs a graph. It writes a job row and enqueues; the
+arq worker runs it. Two consequences worth stating plainly: a deploy that
+restarts the API no longer interrupts a valuation, and a worker that dies
+mid-graph gets the job redelivered rather than losing it with the process.
 
-The worker thread opens its own session. A session is not thread-safe and the
-request's session is closed the moment the response is returned, so sharing one
-would be a use-after-free with extra steps.
+`execute` is the part the worker calls. It is here rather than in
+`workers/tasks.py` so that the graph invocation has exactly one definition, and
+so a future entry point — a replay tool, a backfill — reuses it instead of
+reimplementing the status transitions.
 """
 
 from __future__ import annotations
 
 import asyncio
-import threading
 import uuid
 
 import requests
+from arq import create_pool
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.configs.dbConfig import get_sessionmaker
 from app.configs.envConfig import settings
 from app.repositories import jobRepository
 from app.repositories.jobRepository import TerminalJobError
 from app.utils.logger import get_logger
+from app.utils.redisClient import redis_settings
 
 logger = get_logger(__name__)
 
@@ -51,7 +53,7 @@ def initial_state(job_id: str, instructions: str, property_data: str | None, job
 
 
 def run_graph(job_id: str, instructions: str, property_data: str | None, job_type: str | None) -> dict:
-    """Pure invocation, no persistence. Separate so S4's arq task can reuse it."""
+    """Pure invocation, no persistence."""
     from app.services.graph.reGraph import app as graph
 
     # REState is a TypedDict on a module excluded from mypy; S10 gives the graph
@@ -61,6 +63,32 @@ def run_graph(job_id: str, instructions: str, property_data: str | None, job_typ
     )
 
 
+async def enqueue(
+    job_id: uuid.UUID, instructions: str, property_data: str | None, job_type: str | None
+) -> str | None:
+    """
+    Hand the job to the queue and return.
+
+    The pool is opened per call rather than held on the app: a long-lived pool
+    in the web process is one more thing to drain on shutdown, and enqueueing is
+    rare compared with reading. `_job_id` is the job's own id, so arq deduplicates
+    a redelivery of the same enqueue rather than starting a second run.
+    """
+    pool = await create_pool(redis_settings())
+    try:
+        job = await pool.enqueue_job(
+            "run_generation",
+            str(job_id),
+            instructions,
+            property_data,
+            job_type,
+            _job_id=f"generation:{job_id}",
+        )
+        return job.job_id if job else None
+    finally:
+        await pool.close()
+
+
 async def execute(
     db: AsyncSession,
     job_id: uuid.UUID,
@@ -68,6 +96,7 @@ async def execute(
     property_data: str | None,
     job_type: str | None,
 ) -> None:
+    """Run one generation to a terminal state. Called by the worker."""
     try:
         await jobRepository.set_status(db, job_id, "processing")
     except TerminalJobError:
@@ -75,6 +104,8 @@ async def execute(
         return
 
     try:
+        # The graph is synchronous and CPU/IO bound in equal measure; off the
+        # loop so one long valuation does not stall the worker's other jobs.
         final = await asyncio.to_thread(
             run_graph, str(job_id), instructions, property_data, job_type
         )
@@ -107,7 +138,7 @@ async def _notify(db: AsyncSession, job_id: uuid.UUID) -> None:
     """
     if not settings.WEBHOOK_URL:
         return
-    job = await jobRepository.get(db, job_id)
+    job = await jobRepository.get_unscoped(db, job_id)
     if job is None:
         return
     payload = {
@@ -123,25 +154,3 @@ async def _notify(db: AsyncSession, job_id: uuid.UUID) -> None:
         )
     except Exception:
         pass
-
-
-def run_in_background(
-    job_id: uuid.UUID, instructions: str, property_data: str | None, job_type: str | None
-) -> None:
-    """
-    Hand the job to a thread with its own event loop and its own session.
-
-    This is the line S4 deletes, replacing it with `arq.enqueue_job`. Until then
-    the web process still does the work, and a deploy still interrupts whatever
-    is in flight — the difference is that the interrupted job is now a row
-    someone can find.
-    """
-
-    def _worker() -> None:
-        async def _main() -> None:
-            async with get_sessionmaker()() as db:
-                await execute(db, job_id, instructions, property_data, job_type)
-
-        asyncio.run(_main())
-
-    threading.Thread(target=_worker, daemon=True).start()

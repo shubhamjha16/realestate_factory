@@ -44,6 +44,7 @@ MONEY_NAME_PARTS = (
 # Names that match the fragments above but are not money.
 ALLOWED_NON_MONEY = frozenset({
     "rent_period",       # a unit of time
+    "valuer_id",         # a user, not an amount — "valuer" contains "value"
     "valuer_asset_class",
     "value_range_unit",
     "rate_unit",

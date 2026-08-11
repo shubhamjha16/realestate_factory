@@ -38,3 +38,14 @@ describe('job types mirror the engine', () => {
     }
   });
 });
+
+describe('roles mirror the engine', () => {
+  it('holds the five roles §11.1 settled on', async () => {
+    const { ROLES, CAN_SIGN, CAN_EDIT } = await import('@/shared/constants/roles');
+    expect([...ROLES]).toEqual(['partner', 'valuer', 'analyst', 'readonly', 'client']);
+    // Presentation only — the engine decides again, and properly (S5, S13).
+    expect([...CAN_SIGN]).toEqual(['partner', 'valuer']);
+    expect(CAN_EDIT).not.toContain('readonly');
+    expect(CAN_EDIT).not.toContain('client');
+  });
+});

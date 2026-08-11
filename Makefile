@@ -13,7 +13,7 @@ export PYTHONHASHSEED := 0
 .PHONY: help install install-backend install-frontend dev dev-backend dev-frontend \
         infra infra-down test test-backend test-frontend test-db golden golden-record \
         api-types schema-sql \
-        lint typecheck migrate migration build clean
+        worker lint typecheck migrate migration build clean
 
 help: ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -51,6 +51,9 @@ dev-backend: ## API only, with reload, on :8004
 dev-frontend: ## Console only, on :5173
 	yarn workspace realestate-factory-frontend dev
 
+worker: ## The arq worker — runs generations off the web process
+	cd $(BACKEND) && .venv/bin/arq app.workers.arqApp.WorkerSettings
+
 # ── verify ────────────────────────────────────────────────────────────────────
 
 test: test-backend test-frontend ## Run both suites
@@ -74,12 +77,14 @@ api-types: ## Regenerate packages/api-types from the backend's OpenAPI spec
 	# Importing the app requires GROQ_API_KEY by design; nothing here calls a
 	# provider, so a placeholder is enough when one is not already set.
 	cd $(BACKEND) && GROQ_API_KEY=$${GROQ_API_KEY:-spec-export-no-live-calls} \
+	  JWT_SECRET=$${JWT_SECRET:-spec-export-no-tokens-are-minted-here} \
 	  .venv/bin/python scripts/export_openapi.py
 	yarn workspace @realestate-factory/api-types generate
 	yarn workspace realestate-factory-frontend typecheck
 
 golden: ## Replay the golden set and diff against expected/
-	cd $(BACKEND) && .venv/bin/python tests/golden/runner.py --target package --mode replay
+	cd $(BACKEND) && JWT_SECRET=$${JWT_SECRET:-golden-run-no-tokens-are-minted-here} \
+	  .venv/bin/python tests/golden/runner.py --target package --mode replay
 
 golden-record: ## Re-record the golden set against the live provider (needs GROQ_API_KEY)
 	@test -n "$$GROQ_API_KEY" || { echo "GROQ_API_KEY is not set"; exit 1; }

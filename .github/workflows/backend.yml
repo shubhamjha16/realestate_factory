@@ -65,6 +65,7 @@ jobs:
       - name: migrations render, and the GiST index is in the DDL
         env:
           GROQ_API_KEY: ci-no-live-calls
+          JWT_SECRET: ci-not-a-secret-0000000000000000000000
         run: |
           uv run alembic upgrade head --sql > /tmp/schema.sql
           grep -qi "USING gist" /tmp/schema.sql \
@@ -91,14 +92,23 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U realestate -d realestate_test"
           --health-interval 5s --health-timeout 3s --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 20
     env:
       PYTHONHASHSEED: '0'
       GROQ_API_KEY: ci-no-live-calls
+      JWT_SECRET: ci-not-a-secret-0000000000000000000000
       # Alembic reads DATABASE_URL through envConfig; pytest reads
       # TEST_DATABASE_URL. Both point at the service container, whose port is
       # 5432 here — 5433 is only the local compose mapping.
       DATABASE_URL: postgresql+asyncpg://realestate:realestate@localhost:5432/realestate_test
       TEST_DATABASE_URL: postgresql+asyncpg://realestate:realestate@localhost:5432/realestate_test
+      TEST_REDIS_URL: redis://localhost:6379/0
+      REDIS_URL: redis://localhost:6379/0
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
@@ -122,5 +132,16 @@ jobs:
           grep -qi "gist" /tmp/d_properties.txt \
             || { echo "::error::ix_properties_geom is not on the table"; exit 1; }
 
-      - name: repository tests, including the terminal-finality guard
-        run: uv run pytest tests/test_job_repository.py -q
+      - name: repository, tenancy and queue tests
+        run: uv run pytest tests/test_job_repository.py tests/test_tenancy.py tests/test_queue.py -q
+
+      # S5's exit proof, asked of the schema rather than of the code: a row that
+      # belongs to no firm is invisible to every tenant and therefore unauditable.
+      - name: firm_id is NOT NULL on every tenanted table
+        run: |
+          PGPASSWORD=realestate psql -h localhost -U realestate -d realestate_test -t -c \
+            "SELECT table_name FROM information_schema.columns
+              WHERE column_name = 'firm_id' AND is_nullable = 'YES'" > /tmp/nullable.txt
+          if [ -s /tmp/nullable.txt ] && grep -q '[^[:space:]]' /tmp/nullable.txt; then
+            echo "::error::firm_id is nullable on:"; cat /tmp/nullable.txt; exit 1
+          fi

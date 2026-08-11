@@ -43,6 +43,18 @@ class GenerateRequest(BaseModel):
     premise: ValuationPremise | None = None
     purpose: MandatePurpose | None = None
 
+    def import_checksums(self) -> list[str]:
+        """
+        What the idempotency key hashes alongside the instructions.
+
+        Today `property_data` is a pasted CSV, so its checksum *is* the import.
+        From S6, when `POST /imports` accepts files, this returns the stored
+        imports' checksums and the pasted path falls away.
+        """
+        from app.utils.idempotency import checksum_text
+
+        return [checksum_text(self.property_data)] if self.property_data else []
+
     @model_validator(mode="after")
     def _check(self) -> GenerateRequest:
         validate_instructions(self.instructions)

@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     # The router LLM runs intake on every job, on every path. Without it nothing
     # generates, so it is a boot requirement rather than a runtime surprise.
     GROQ_API_KEY: str = Field(min_length=1)
+    # Signs every session token. No default: a shipped default secret means
+    # anyone who reads this repository can mint a token for any firm.
+    JWT_SECRET: str = Field(min_length=32)
 
     # ── LLM ───────────────────────────────────────────────────────────────────
     ROUTER_MODEL: str = "llama-3.3-70b-versatile"
@@ -59,6 +62,14 @@ class Settings(BaseSettings):
     COMPARABLE_RADIUS_M: int = 2000
     COMPARABLE_MIN_SAMPLE: int = 3
     COMPARABLE_MAX_AGE_MONTHS: int = 18
+
+    # ── Auth (S5) ─────────────────────────────────────────────────────────────
+    # Unset disables Google sign-in rather than half-enabling it.
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    # This deployment holds several clients' title and transaction data. MFA is
+    # on by default and turning it off is a deliberate act with a name.
+    MFA_REQUIRED: bool = True
 
     # ── HTTP ──────────────────────────────────────────────────────────────────
     PORT: int = 8004

@@ -41,13 +41,15 @@ class Job(TimestampMixin, Base):
 
     # Nullable until S5 lands auth: today there is no firm to attribute a job to,
     # and a NOT NULL column with a fabricated default would be a lie in the data.
-    firm_id: Mapped[uuid.UUID | None] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("firms.id", ondelete="CASCADE")
+    firm_id: Mapped[uuid.UUID] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("firms.id", ondelete="CASCADE"), nullable=False, index=True
     )
     user_id: Mapped[uuid.UUID | None] = mapped_column(
         PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
-    mandate_id: Mapped[uuid.UUID | None] = mapped_column(PGUUID(as_uuid=True))
+    mandate_id: Mapped[uuid.UUID | None] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("mandates.id", ondelete="SET NULL"), index=True
+    )
 
     status: Mapped[str] = mapped_column(String(30), nullable=False, default="queued", index=True)
     job_type: Mapped[str] = mapped_column(String(60), nullable=False, default="")

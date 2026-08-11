@@ -1,18 +1,21 @@
 """
-Job repository — Postgres.
+Job repository.
 
-Replaces `jobs.json` and `threading.Lock`. A restart no longer loses in-flight
-work: a job that was mid-graph when the process died is still `processing` in
-the database and can be swept (S4 adds the sweep).
+Every function that answers a caller takes a `FirmScope` and filters by it.
+There is exactly one unscoped reader, `get_unscoped`, and it exists for the arq
+worker, which has a job id from the queue and no user session. It is named so it
+cannot be reached for by accident and so the guard test can allow it explicitly.
+
+Cross-firm reads return `None`, and the controller turns that into a 404. Not
+403: "you may not read this" confirms the row exists, and for a mandate name or
+a property address that confirmation is itself the leak.
 
 **Terminal finality.** Once `terminal_at` is set, this layer refuses any further
-write to `status`, `doc_url` or `error`. It is enforced here rather than in a
-service because there will be several writers — the web process today, the arq
-worker from S4, the retention sweep from S13 — and a rule that lives in one
-caller is a rule the next caller does not know about. A completed deliverable
-that later flips to `failed` is a record a bank cannot rely on.
-
-From S5 every method here takes a firm scope, and none is callable without one.
+write to `status`, `doc_url` or `error`. Enforced here because there are several
+writers — the web process, the arq worker, S13's retention sweep — and a rule
+that lives in one caller is a rule the next caller does not know about. A
+completed deliverable that later flips to `failed` is a record a bank cannot
+rely on.
 """
 
 from __future__ import annotations
@@ -24,6 +27,7 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.job import TERMINAL_STATUSES, Job
+from app.services.access.scope import FirmScope
 
 
 class TerminalJobError(RuntimeError):
@@ -39,21 +43,39 @@ class TerminalJobError(RuntimeError):
         )
 
 
+def _visible(scope: FirmScope):
+    """
+    The tenancy predicate, in one place.
+
+    A `client` user sees the mandates they were granted and nothing else — not
+    their firm's other work, and never another firm's.
+    """
+    predicate = Job.firm_id == scope.firm_id
+    if scope.is_client:
+        allowed = list(scope.mandate_ids or ())
+        if not allowed:
+            # No grants means nothing visible, not everything visible.
+            return predicate & Job.id.is_(None)
+        predicate = predicate & Job.mandate_id.in_(allowed)
+    return predicate
+
+
 async def create(
     db: AsyncSession,
+    scope: FirmScope,
     *,
     job_type: str = "",
     instructions: str = "",
-    firm_id: uuid.UUID | None = None,
-    user_id: uuid.UUID | None = None,
+    mandate_id: uuid.UUID | None = None,
     idempotency_key: str | None = None,
 ) -> Job:
     job = Job(
         status="queued",
         job_type=job_type,
         instructions=instructions,
-        firm_id=firm_id,
-        user_id=user_id,
+        firm_id=scope.firm_id,
+        user_id=scope.user_id,
+        mandate_id=mandate_id,
         idempotency_key=idempotency_key,
     )
     db.add(job)
@@ -63,16 +85,49 @@ async def create(
     return job
 
 
-async def get(db: AsyncSession, job_id: uuid.UUID) -> Job | None:
-    return await db.get(Job, job_id)
+async def get(db: AsyncSession, scope: FirmScope, job_id: uuid.UUID) -> Job | None:
+    stmt = select(Job).where(Job.id == job_id, _visible(scope))
+    return (await db.execute(stmt)).scalar_one_or_none()
 
 
-async def list_for_firm(db: AsyncSession, firm_id: uuid.UUID | None, limit: int = 50) -> list[Job]:
-    stmt = select(Job).order_by(Job.created_at.desc()).limit(limit)
-    # S5 makes the scope mandatory rather than conditional.
-    if firm_id is not None:
-        stmt = stmt.where(Job.firm_id == firm_id)
+async def list_jobs(db: AsyncSession, scope: FirmScope, *, limit: int = 50) -> list[Job]:
+    stmt = select(Job).where(_visible(scope)).order_by(Job.created_at.desc()).limit(limit)
     return list((await db.execute(stmt)).scalars())
+
+
+async def search(db: AsyncSession, scope: FirmScope, term: str, *, limit: int = 50) -> list[Job]:
+    """
+    Search is a read like any other, and the most commonly forgotten one — the
+    listing endpoint gets scoped and the search beside it does not.
+    """
+    stmt = (
+        select(Job)
+        .where(_visible(scope), Job.instructions.ilike(f"%{term}%"))
+        .order_by(Job.created_at.desc())
+        .limit(limit)
+    )
+    return list((await db.execute(stmt)).scalars())
+
+
+async def find_by_idempotency_key(db: AsyncSession, scope: FirmScope, key: str) -> Job | None:
+    """
+    The key already contains the firm id, so a cross-firm collision is not
+    possible — but this still filters by scope, because a repository function
+    that trusts its input to be pre-scoped is one refactor away from not being.
+    """
+    stmt = select(Job).where(Job.idempotency_key == key, _visible(scope))
+    return (await db.execute(stmt)).scalar_one_or_none()
+
+
+async def get_unscoped(db: AsyncSession, job_id: uuid.UUID) -> Job | None:
+    """
+    For the worker only.
+
+    arq hands it a job id and no session; there is no user to scope by. Every
+    other reader must use `get`. `tests/test_repository_scope_guard.py` allows
+    this name and no other.
+    """
+    return await db.get(Job, job_id)
 
 
 async def set_status(
@@ -84,12 +139,13 @@ async def set_status(
     error: str | None = None,
 ) -> Job:
     """
-    The only way a job's status changes.
+    The only way a job's status changes. Unscoped: the worker owns this
+    transition and has no session. It is a write to a specific known id, never a
+    read that could return another firm's row.
 
-    Guarded twice on purpose. The read-then-check gives a useful error naming
-    when the job finished; the `terminal_at IS NULL` predicate in the UPDATE
-    makes it safe against a concurrent writer between the two, which is exactly
-    the race that arrives with the worker in S4.
+    Guarded twice on purpose. The read-then-check produces an error naming when
+    the job finished; the `terminal_at IS NULL` predicate on the UPDATE makes it
+    safe against a second worker racing between the two.
     """
     job = await db.get(Job, job_id)
     if job is None:
@@ -127,11 +183,10 @@ async def set_status(
 
 async def reconcile_orphans(db: AsyncSession, older_than: datetime) -> int:
     """
-    Jobs left `processing` by a killed process.
+    Jobs left `processing` by a worker that died without arq redelivering.
 
-    S1 lost these entirely — the file was rewritten on restart. They are now
-    visible and countable, which is what makes them reconcilable. S4's worker
-    owns deciding their fate; this only reports them.
+    Unscoped and deliberately so: operational, runs on a schedule with no user,
+    and returns a count rather than any row.
     """
     stmt = select(Job).where(
         Job.status == "processing",

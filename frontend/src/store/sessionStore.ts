@@ -20,6 +20,12 @@ interface SessionState {
   signOut: () => void;
 }
 
+/**
+ * The token is held in memory only — never localStorage. A bearer token that
+ * survives a tab close is a bearer token any script on the page can read, and
+ * this one opens a firm's title and transaction data.
+ */
+
 export const useSessionStore = create<SessionState>((set) => ({
   user: null,
   token: null,
