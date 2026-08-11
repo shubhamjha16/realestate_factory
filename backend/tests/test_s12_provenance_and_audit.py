@@ -20,6 +20,7 @@ import pytest_asyncio
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.controllers import deliverableController
+from app.models.client import Client
 from app.models.comparable import Comparable
 from app.models.firm import Firm
 from app.models.mandate import Mandate
@@ -108,8 +109,16 @@ async def sample_mandate_setup(db):
 
     scope = FirmScope(firm_id=firm_id, user_id=user_id, role="valuer")
 
+    # A mandate is an instruction from a client, and `client_id` is NOT NULL.
+    # Creating one here rather than nulling the column: an unattributed mandate
+    # is not a thing this product should be able to represent.
+    client = Client(firm_id=firm_id, name="Federal Bank — Credit", kind="bank")
+    db.add(client)
+    await db.flush()
+
     mandate = Mandate(
         firm_id=firm_id,
+        client_id=client.id,
         kind="valuation",
         purpose="loan",
         status="instructed",

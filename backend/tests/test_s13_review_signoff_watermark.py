@@ -21,6 +21,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.models.deliverable import Deliverable
 from app.models.firm import Firm
+from app.models.user import User
 from app.repositories import deliverableRepository, reviewNoteRepository
 from app.routers import reviewNotes
 from app.services.access.scope import FirmScope
@@ -107,10 +108,25 @@ async def signoff_setup(db):
     db.add(firm)
     await db.flush()
 
-    analyst_scope = FirmScope(firm_id=firm_id, user_id=uuid.uuid4(), role="analyst")
+    # The scopes carry user ids, and a review note's author and assignee are
+    # foreign keys to `users`. Minting bare UUIDs worked only while the table did
+    # not exist — a note attributed to nobody is exactly what the sign-off trail
+    # is there to prevent, so the rows are real here.
+    analyst = User(firm_id=firm_id, email="analyst@apexvaluations.in", role="analyst")
+    valuer = User(
+        firm_id=firm_id,
+        email="valuer@apexvaluations.in",
+        role="valuer",
+        ibbi_reg_no="IBBI/RV/02/2020/99999",
+        valuer_asset_class="land_and_building",
+    )
+    db.add_all([analyst, valuer])
+    await db.flush()
+
+    analyst_scope = FirmScope(firm_id=firm_id, user_id=analyst.id, role="analyst")
     valuer_scope = FirmScope(
         firm_id=firm_id,
-        user_id=uuid.uuid4(),
+        user_id=valuer.id,
         role="valuer",
         ibbi_reg_no="IBBI/RV/02/2020/99999",
         valuer_asset_class="land_and_building",
