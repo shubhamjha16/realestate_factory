@@ -1,6 +1,29 @@
 {
   "components": {
     "schemas": {
+      "ApprovalsExpiringRequest": {
+        "properties": {
+          "approvals": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Approvals",
+            "type": "array"
+          },
+          "within_days": {
+            "default": 90,
+            "minimum": 1.0,
+            "title": "Within Days",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "approvals"
+        ],
+        "title": "ApprovalsExpiringRequest",
+        "type": "object"
+      },
       "AuthResponse": {
         "description": "Either a session or a challenge, never both.\n\n`mfa_required` tells the console which it received. `totp_enrolment_uri` is\npresent only while enrolling and never again \u2014 it carries the shared secret.",
         "properties": {
@@ -176,6 +199,305 @@
           "purpose"
         ],
         "title": "CreateMandateRequest",
+        "type": "object"
+      },
+      "CreateNoteRequest": {
+        "properties": {
+          "assigned_to": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned To"
+          },
+          "comparable_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comparable Id"
+          },
+          "note": {
+            "minLength": 1,
+            "title": "Note",
+            "type": "string"
+          },
+          "section_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section Id"
+          }
+        },
+        "required": [
+          "note"
+        ],
+        "title": "CreateNoteRequest",
+        "type": "object"
+      },
+      "DeliverWebhookRequest": {
+        "properties": {
+          "event_type": {
+            "default": "valuation.completed",
+            "title": "Event Type",
+            "type": "string"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "secret": {
+            "minLength": 4,
+            "title": "Secret",
+            "type": "string"
+          },
+          "simulate_failures": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Simulate Failures",
+            "type": "integer"
+          },
+          "url": {
+            "minLength": 5,
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "secret"
+        ],
+        "title": "DeliverWebhookRequest",
+        "type": "object"
+      },
+      "DisbursementVerifyRequest": {
+        "properties": {
+          "certified_stage_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Certified Stage Pct"
+          },
+          "prior_disbursed_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "default": "0.00",
+            "title": "Prior Disbursed Pct"
+          },
+          "requested_tranche_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Requested Tranche Pct"
+          }
+        },
+        "required": [
+          "certified_stage_pct",
+          "requested_tranche_pct"
+        ],
+        "title": "DisbursementVerifyRequest",
+        "type": "object"
+      },
+      "ExportDocxRequest": {
+        "properties": {
+          "clause_plan": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Clause Plan",
+            "type": "array"
+          },
+          "client_name": {
+            "default": "Client",
+            "title": "Client Name",
+            "type": "string"
+          },
+          "computed": {
+            "additionalProperties": true,
+            "title": "Computed",
+            "type": "object"
+          },
+          "doc_type": {
+            "default": "valuation_report",
+            "title": "Doc Type",
+            "type": "string"
+          },
+          "job_id": {
+            "default": "job",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "property_address": {
+            "default": "",
+            "title": "Property Address",
+            "type": "string"
+          },
+          "status": {
+            "default": "draft",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "clause_plan"
+        ],
+        "title": "ExportDocxRequest",
+        "type": "object"
+      },
+      "ExportJsonRequest": {
+        "properties": {
+          "clause_plan": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Clause Plan",
+            "type": "array"
+          },
+          "client_name": {
+            "default": "Client",
+            "title": "Client Name",
+            "type": "string"
+          },
+          "computed": {
+            "additionalProperties": true,
+            "title": "Computed",
+            "type": "object"
+          },
+          "doc_type": {
+            "default": "valuation_report",
+            "title": "Doc Type",
+            "type": "string"
+          },
+          "job_id": {
+            "default": "job",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "property_address": {
+            "default": "",
+            "title": "Property Address",
+            "type": "string"
+          }
+        },
+        "required": [
+          "clause_plan"
+        ],
+        "title": "ExportJsonRequest",
+        "type": "object"
+      },
+      "ExportPdfRequest": {
+        "properties": {
+          "clause_plan": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Clause Plan",
+            "type": "array"
+          },
+          "client_name": {
+            "default": "Client",
+            "title": "Client Name",
+            "type": "string"
+          },
+          "doc_type": {
+            "default": "valuation_report",
+            "title": "Doc Type",
+            "type": "string"
+          },
+          "job_id": {
+            "default": "job",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "property_address": {
+            "default": "",
+            "title": "Property Address",
+            "type": "string"
+          }
+        },
+        "required": [
+          "clause_plan"
+        ],
+        "title": "ExportPdfRequest",
+        "type": "object"
+      },
+      "ExportXlsxGridRequest": {
+        "properties": {
+          "comparables": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Comparables",
+            "type": "array"
+          },
+          "export_type": {
+            "default": "adjustment_grid",
+            "title": "Export Type",
+            "type": "string"
+          },
+          "job_id": {
+            "default": "job",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "subject_area": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "default": "1200",
+            "title": "Subject Area"
+          }
+        },
+        "required": [
+          "comparables"
+        ],
+        "title": "ExportXlsxGridRequest",
         "type": "object"
       },
       "GenerateRequest": {
@@ -451,6 +773,116 @@
         "title": "MfaRequest",
         "type": "object"
       },
+      "PortfolioRollupRequest": {
+        "properties": {
+          "properties": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Properties",
+            "type": "array"
+          }
+        },
+        "required": [
+          "properties"
+        ],
+        "title": "PortfolioRollupRequest",
+        "type": "object"
+      },
+      "RentRollRequest": {
+        "properties": {
+          "as_of_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "As Of Date"
+          },
+          "leases": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Leases",
+            "type": "array"
+          }
+        },
+        "required": [
+          "leases"
+        ],
+        "title": "RentRollRequest",
+        "type": "object"
+      },
+      "ReraObligationsRequest": {
+        "properties": {
+          "project_end_date": {
+            "format": "date",
+            "title": "Project End Date",
+            "type": "string"
+          },
+          "rera_reg_date": {
+            "format": "date",
+            "title": "Rera Reg Date",
+            "type": "string"
+          },
+          "state": {
+            "minLength": 2,
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "rera_reg_date",
+          "project_end_date"
+        ],
+        "title": "ReraObligationsRequest",
+        "type": "object"
+      },
+      "RespondNoteRequest": {
+        "properties": {
+          "response": {
+            "minLength": 1,
+            "title": "Response",
+            "type": "string"
+          }
+        },
+        "required": [
+          "response"
+        ],
+        "title": "RespondNoteRequest",
+        "type": "object"
+      },
+      "SearchCorpusRequest": {
+        "properties": {
+          "locality": {
+            "default": "",
+            "title": "Locality",
+            "type": "string"
+          },
+          "target_firm_id": {
+            "format": "uuid",
+            "title": "Target Firm Id",
+            "type": "string"
+          },
+          "topic": {
+            "default": "market_analysis",
+            "title": "Topic",
+            "type": "string"
+          }
+        },
+        "required": [
+          "target_firm_id"
+        ],
+        "title": "SearchCorpusRequest",
+        "type": "object"
+      },
       "SessionUser": {
         "properties": {
           "email": {
@@ -504,6 +936,24 @@
           "role"
         ],
         "title": "SessionUser",
+        "type": "object"
+      },
+      "SignDeliverableRequest": {
+        "properties": {
+          "asset_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "land_and_building",
+            "title": "Asset Class"
+          }
+        },
+        "title": "SignDeliverableRequest",
         "type": "object"
       },
       "SignInRequest": {
@@ -589,6 +1039,69 @@
         "title": "SignUpRequest",
         "type": "object"
       },
+      "StampDutyRequest": {
+        "properties": {
+          "area": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Area"
+          },
+          "circle_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Circle Rate"
+          },
+          "consideration": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Consideration"
+          },
+          "document_type": {
+            "default": "sale_deed",
+            "title": "Document Type",
+            "type": "string"
+          },
+          "gender": {
+            "default": "male",
+            "title": "Gender",
+            "type": "string"
+          },
+          "state": {
+            "minLength": 2,
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "consideration",
+          "circle_rate",
+          "area"
+        ],
+        "title": "StampDutyRequest",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -628,6 +1141,35 @@
         ],
         "title": "ValidationError",
         "type": "object"
+      },
+      "VerifyWebhookRequest": {
+        "properties": {
+          "raw_body": {
+            "title": "Raw Body",
+            "type": "string"
+          },
+          "secret": {
+            "minLength": 4,
+            "title": "Secret",
+            "type": "string"
+          },
+          "signature": {
+            "title": "Signature",
+            "type": "string"
+          },
+          "timestamp": {
+            "title": "Timestamp",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "secret",
+          "timestamp",
+          "raw_body",
+          "signature"
+        ],
+        "title": "VerifyWebhookRequest",
+        "type": "object"
       }
     },
     "securitySchemes": {
@@ -643,6 +1185,264 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/api/v1/jobs/{job_id}/events": {
+      "get": {
+        "operationId": "stream_job_events_api_v1_api_v1_jobs__job_id__events_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Stream Job Events Api V1 Api V1 Jobs  Job Id  Events Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Stream Job Events",
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/v1/api/v1/quotas/check": {
+      "get": {
+        "operationId": "check_quota_endpoint_api_v1_api_v1_quotas_check_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "plan",
+            "required": false,
+            "schema": {
+              "default": "starter",
+              "title": "Plan",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "usage",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "title": "Usage",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Check Quota Endpoint Api V1 Api V1 Quotas Check Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Check Quota Endpoint",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
+    "/api/v1/api/v1/webhooks/deliver": {
+      "post": {
+        "operationId": "deliver_webhook_endpoint_api_v1_api_v1_webhooks_deliver_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeliverWebhookRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Deliver Webhook Endpoint Api V1 Api V1 Webhooks Deliver Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Deliver Webhook Endpoint",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
+    "/api/v1/api/v1/webhooks/verify": {
+      "post": {
+        "operationId": "verify_webhook_endpoint_api_v1_api_v1_webhooks_verify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyWebhookRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Verify Webhook Endpoint Api V1 Api V1 Webhooks Verify Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Verify Webhook Endpoint",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
+    "/api/v1/audit": {
+      "get": {
+        "operationId": "list_audit_events_api_v1_audit_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response List Audit Events Api V1 Audit Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Audit Events",
+        "tags": [
+          "audit"
+        ]
+      }
+    },
     "/api/v1/auth/google": {
       "post": {
         "operationId": "google_api_v1_auth_google_post",
@@ -940,6 +1740,681 @@
         ]
       }
     },
+    "/api/v1/compliance/approvals/expiring": {
+      "post": {
+        "operationId": "check_expiring_approvals_endpoint_api_v1_compliance_approvals_expiring_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalsExpiringRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Check Expiring Approvals Endpoint Api V1 Compliance Approvals Expiring Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Check Expiring Approvals Endpoint",
+        "tags": [
+          "compliance"
+        ]
+      }
+    },
+    "/api/v1/compliance/rera/obligations": {
+      "post": {
+        "operationId": "get_rera_obligations_api_v1_compliance_rera_obligations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReraObligationsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Get Rera Obligations Api V1 Compliance Rera Obligations Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Rera Obligations",
+        "tags": [
+          "compliance"
+        ]
+      }
+    },
+    "/api/v1/compliance/stamp-duty": {
+      "post": {
+        "operationId": "compute_stamp_duty_endpoint_api_v1_compliance_stamp_duty_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StampDutyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Compute Stamp Duty Endpoint Api V1 Compliance Stamp Duty Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Compute Stamp Duty Endpoint",
+        "tags": [
+          "compliance"
+        ]
+      }
+    },
+    "/api/v1/deliverables": {
+      "get": {
+        "operationId": "list_deliverables_api_v1_deliverables_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "mandate_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mandate Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response List Deliverables Api V1 Deliverables Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Deliverables",
+        "tags": [
+          "deliverables"
+        ]
+      }
+    },
+    "/api/v1/deliverables/{deliverable_id}": {
+      "get": {
+        "operationId": "get_deliverable_api_v1_deliverables__deliverable_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "deliverable_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Deliverable Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Deliverable Api V1 Deliverables  Deliverable Id  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Deliverable",
+        "tags": [
+          "deliverables"
+        ]
+      }
+    },
+    "/api/v1/deliverables/{deliverable_id}/notes": {
+      "get": {
+        "operationId": "list_review_notes_api_v1_deliverables__deliverable_id__notes_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "deliverable_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Deliverable Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response List Review Notes Api V1 Deliverables  Deliverable Id  Notes Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Review Notes",
+        "tags": [
+          "review"
+        ]
+      },
+      "post": {
+        "operationId": "create_review_note_api_v1_deliverables__deliverable_id__notes_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "deliverable_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Deliverable Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateNoteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Create Review Note Api V1 Deliverables  Deliverable Id  Notes Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Review Note",
+        "tags": [
+          "review"
+        ]
+      }
+    },
+    "/api/v1/deliverables/{deliverable_id}/provenance": {
+      "get": {
+        "operationId": "get_provenance_api_v1_deliverables__deliverable_id__provenance_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "deliverable_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Deliverable Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Provenance Api V1 Deliverables  Deliverable Id  Provenance Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Provenance",
+        "tags": [
+          "deliverables"
+        ]
+      }
+    },
+    "/api/v1/deliverables/{deliverable_id}/sign": {
+      "post": {
+        "operationId": "sign_deliverable_api_v1_deliverables__deliverable_id__sign_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "deliverable_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Deliverable Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignDeliverableRequest",
+                "default": {
+                  "asset_class": "land_and_building"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Sign Deliverable Api V1 Deliverables  Deliverable Id  Sign Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Sign Deliverable",
+        "tags": [
+          "review"
+        ]
+      }
+    },
+    "/api/v1/export/docx": {
+      "post": {
+        "operationId": "export_docx_api_v1_export_docx_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportDocxRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Export Docx Api V1 Export Docx Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Export Docx",
+        "tags": [
+          "export"
+        ]
+      }
+    },
+    "/api/v1/export/json": {
+      "post": {
+        "operationId": "export_json_api_v1_export_json_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportJsonRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Export Json Api V1 Export Json Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Export Json",
+        "tags": [
+          "export"
+        ]
+      }
+    },
+    "/api/v1/export/pdf": {
+      "post": {
+        "operationId": "export_pdf_api_v1_export_pdf_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportPdfRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Export Pdf Api V1 Export Pdf Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Export Pdf",
+        "tags": [
+          "export"
+        ]
+      }
+    },
+    "/api/v1/export/xlsx": {
+      "post": {
+        "operationId": "export_xlsx_api_v1_export_xlsx_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportXlsxGridRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Export Xlsx Api V1 Export Xlsx Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Export Xlsx",
+        "tags": [
+          "export"
+        ]
+      }
+    },
     "/api/v1/generate": {
       "post": {
         "operationId": "generate_api_v1_generate_post",
@@ -1232,6 +2707,308 @@
         "summary": "Get Mandate",
         "tags": [
           "mandates"
+        ]
+      }
+    },
+    "/api/v1/notes/{note_id}/close": {
+      "post": {
+        "operationId": "close_review_note_api_v1_notes__note_id__close_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "note_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Note Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Close Review Note Api V1 Notes  Note Id  Close Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Close Review Note",
+        "tags": [
+          "review"
+        ]
+      }
+    },
+    "/api/v1/notes/{note_id}/respond": {
+      "post": {
+        "operationId": "respond_review_note_api_v1_notes__note_id__respond_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "note_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Note Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RespondNoteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Respond Review Note Api V1 Notes  Note Id  Respond Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Respond Review Note",
+        "tags": [
+          "review"
+        ]
+      }
+    },
+    "/api/v1/portfolio/disbursement/verify": {
+      "post": {
+        "operationId": "verify_disbursement_endpoint_api_v1_portfolio_disbursement_verify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisbursementVerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Verify Disbursement Endpoint Api V1 Portfolio Disbursement Verify Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Verify Disbursement Endpoint",
+        "tags": [
+          "portfolio"
+        ]
+      }
+    },
+    "/api/v1/portfolio/rent-roll": {
+      "post": {
+        "operationId": "compute_rent_roll_api_v1_portfolio_rent_roll_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RentRollRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Compute Rent Roll Api V1 Portfolio Rent Roll Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Compute Rent Roll",
+        "tags": [
+          "portfolio"
+        ]
+      }
+    },
+    "/api/v1/portfolio/rollup": {
+      "post": {
+        "operationId": "compute_portfolio_rollup_endpoint_api_v1_portfolio_rollup_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PortfolioRollupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Compute Portfolio Rollup Endpoint Api V1 Portfolio Rollup Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Compute Portfolio Rollup Endpoint",
+        "tags": [
+          "portfolio"
+        ]
+      }
+    },
+    "/api/v1/retrieval/search": {
+      "post": {
+        "operationId": "search_corpus_endpoint_api_v1_retrieval_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchCorpusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Search Corpus Endpoint Api V1 Retrieval Search Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Search Corpus Endpoint",
+        "tags": [
+          "retrieval"
         ]
       }
     },
