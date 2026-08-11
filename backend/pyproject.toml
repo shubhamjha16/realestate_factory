@@ -53,10 +53,17 @@ extend-exclude = [
 select = ["E", "F", "I", "UP", "B"]
 ignore = ["E501"]
 
+[tool.ruff.lint.per-file-ignores]
+# `Depends(...)` in an argument default is how FastAPI declares a dependency.
+# B008 is right in general and wrong here.
+"app/routers/*.py" = ["B008"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
 filterwarnings = ["ignore::FutureWarning"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.mypy]
 python_version = "3.12"

@@ -50,12 +50,71 @@ jobs:
       - name: dependency audit
         run: uv run --with pip-audit pip-audit --strict -r requirements.txt
 
-      # Blocking from S2, when the first monetary columns land. Kept here from S1
-      # so it is never something that has to be argued for later.
+      # Blocking. Checks every column on Base.metadata by type, and every
+      # migration by text — a migration can add a column the models never
+      # declared. See scripts/check_money_columns.py.
+      # Deliberately no GROQ_API_KEY: reading the schema must not require a
+      # provider key, which is why Base lives in app/models/base.py.
       - name: no monetary column typed Float
+        run: uv run python scripts/check_money_columns.py
+
+      # The migration is not merely importable: it produces the DDL it claims
+      # to, including the GiST index autogenerate does not emit.
+      - name: migrations render, and the GiST index is in the DDL
+        env:
+          GROQ_API_KEY: ci-no-live-calls
         run: |
-          if grep -rnE '(sale_price|rent|amount|value|deposit|cost|inr_|price|consideration)[A-Za-z_]*.*(Float|float8|REAL|DOUBLE PRECISION)' \
-               app/models alembic/versions 2>/dev/null; then
-            echo "::error::a monetary column is typed Float — use NUMERIC(18,2)"
-            exit 1
-          fi
+          uv run alembic upgrade head --sql > /tmp/schema.sql
+          grep -qi "USING gist" /tmp/schema.sql \
+            || { echo "::error::no GiST index in the rendered schema"; exit 1; }
+          grep -qi "CREATE EXTENSION IF NOT EXISTS postgis" /tmp/schema.sql \
+            || { echo "::error::postgis extension is not created"; exit 1; }
+
+  # The repository tests need a real PostGIS: the schema uses geography, a
+  # partial unique index and uuid keys, so a SQLite stand-in would prove that a
+  # different schema works.
+  database:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: realestate
+          POSTGRES_PASSWORD: realestate
+          POSTGRES_DB: realestate_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U realestate -d realestate_test"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      PYTHONHASHSEED: '0'
+      GROQ_API_KEY: ci-no-live-calls
+      TEST_DATABASE_URL: postgresql+asyncpg://realestate:realestate@localhost:5432/realestate_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - run: uv python install 3.12
+      - run: uv sync --all-groups --frozen
+
+      - name: alembic upgrade head on an empty database
+        run: uv run alembic upgrade head
+
+      - name: downgrade is reversible
+        run: |
+          uv run alembic downgrade base
+          uv run alembic upgrade head
+
+      - name: the GiST index exists on properties.geom
+        run: |
+          PGPASSWORD=realestate psql -h localhost -U realestate -d realestate_test \
+            -c "\d properties" | tee /tmp/d_properties.txt
+          grep -qi "gist" /tmp/d_properties.txt \
+            || { echo "::error::ix_properties_geom is not on the table"; exit 1; }
+
+      - name: repository tests, including the terminal-finality guard
+        run: uv run pytest tests/test_job_repository.py -q

@@ -2,13 +2,21 @@
  * The single way this console talks to the engine.
  *
  * Auth header, retry, SSE and error mapping live here so that no feature writes
- * `fetch` directly. From S3 the request and response types come from
- * `packages/api-types`, generated from the backend's OpenAPI spec, so a schema
- * change that breaks the console fails the build.
+ * `fetch` directly. Request and response types come from `packages/api-types`,
+ * generated from the backend's OpenAPI spec — so a schema change the console has
+ * not caught up with fails `tsc`, which is the point of one repository.
  */
+
+import type {
+  SchemaGenerateRequest,
+  SchemaJobStatus,
+} from '@realestate-factory/api-types';
 
 import { env } from './env';
 import { ApiError } from './errors';
+
+export type GenerateRequest = SchemaGenerateRequest;
+export type JobStatus = SchemaJobStatus;
 
 type Json = Record<string, unknown>;
 
@@ -98,3 +106,19 @@ export const api = {
     request<T>(path, { method: 'POST', body, signal }),
   patch: <T>(path: string, body: Json) => request<T>(path, { method: 'PATCH', body }),
 };
+
+/**
+ * Typed endpoints. Both signatures come from the generated spec, so dropping a
+ * field the backend now requires — `basis` on a valuation, say — is a type error
+ * here rather than a 422 a valuer discovers.
+ */
+export const jobsApi = {
+  generate: (body: GenerateRequest, signal?: AbortSignal) =>
+    api.post<JobStatus>('/generate', body as unknown as Json, signal),
+
+  get: (jobId: string, signal?: AbortSignal) =>
+    api.get<JobStatus>(`/jobs/${encodeURIComponent(jobId)}`, signal),
+};
+
+/** A job whose `terminal_at` is set is frozen — the engine refuses further writes. */
+export const isTerminal = (job: JobStatus): boolean => job.terminal_at != null;

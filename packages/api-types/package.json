@@ -6,6 +6,6 @@
   "main": "index.ts",
   "types": "index.ts",
   "scripts": {
-    "generate": "echo 'Generation lands in S3 (openapi-typescript against /openapi.json)' && exit 1"
+    "generate": "openapi-typescript ./openapi.json -o ./index.ts --root-types --alphabetize"
   }
 }

@@ -2,9 +2,12 @@ name: realestate-factory
 
 services:
   postgres:
-    # PostGIS, not plain Postgres: properties have geometry, and comparable
-    # search is a spatial query before it is a table scan.
-    image: postgis/postgis:16-3.4
+    # Built, not pulled: no official image carries PostGIS and pgvector together.
+    # Geometry on properties and comparables from S2; retrieval over the firm's
+    # own reporting corpus from S17.
+    build:
+      context: ./docker/postgres
+    image: realestate-factory/postgres:16-postgis-pgvector
     environment:
       POSTGRES_USER: realestate
       POSTGRES_PASSWORD: realestate
@@ -14,7 +17,6 @@ services:
       - "5433:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./docker/postgres-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U realestate -d realestate"]
       interval: 5s
@@ -33,6 +35,41 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  # The engine. Not started by `make dev`, which runs it on the host with
+  # reload; this is for `docker compose --profile full up`, and it is the image
+  # Render builds.
+  api:
+    profiles: ["full"]
+    build:
+      context: ./backend
+    image: realestate-factory/api:dev
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgresql+asyncpg://realestate:realestate@postgres:5432/realestate
+      REDIS_URL: redis://redis:6379/0
+      GROQ_API_KEY: ${GROQ_API_KEY:?set GROQ_API_KEY in your environment}
+      CORS_ORIGINS: http://localhost:5173,http://localhost:8080
+    ports:
+      - "8004:8004"
+    # Migrations never run inside the web process — §9.
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8004"
+
+  console:
+    profiles: ["full"]
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:8004/api/v1
+    image: realestate-factory/console:dev
+    depends_on: [api]
+    ports:
+      - "8080:80"
 
 volumes:
   postgres-data:

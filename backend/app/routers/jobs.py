@@ -8,8 +8,10 @@ uses. Both read the same record.
 
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.configs.dbConfig import get_db
 from app.controllers import generationController
 from app.schemas.response.jobResponse import JobStatus
 
@@ -17,10 +19,10 @@ router = APIRouter(tags=["jobs"])
 
 
 @router.get("/jobs/{job_id}", response_model=JobStatus)
-def get_job(job_id: str) -> JobStatus:
-    return generationController.get_job(job_id)
+async def get_job(job_id: str, db: AsyncSession = Depends(get_db)) -> JobStatus:
+    return await generationController.get_job(db, job_id)
 
 
 @router.get("/status/{job_id}", response_model=JobStatus, deprecated=True)
-def get_status(job_id: str) -> JobStatus:
-    return generationController.get_job(job_id)
+async def get_status(job_id: str, db: AsyncSession = Depends(get_db)) -> JobStatus:
+    return await generationController.get_job(db, job_id)

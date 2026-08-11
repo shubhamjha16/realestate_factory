@@ -32,9 +32,11 @@ Requires Python 3.12 (via `uv`), Node 20+, yarn and Docker.
 ## Verifying
 
 ```bash
-make test        # pytest, including the golden set, plus vitest
+make test        # pytest, including the golden set, plus vitest — no database needed
+make test-db     # repository tests against a live PostGIS (needs `make infra`)
 make golden      # replay the four golden cases and diff figure by figure
-make lint
+make lint        # ruff + eslint + the money-column guard
+make schema-sql  # render the whole schema as DDL without touching a database
 ```
 
 The golden set is four jobs — one per graph path — run with the LLM replaced by
@@ -44,10 +46,23 @@ drift fails. See `backend/tests/golden/README.md`.
 
 ## Where this is
 
-**S1 of 21 is complete**: the monorepo split, typed configuration, and the golden
-harness that proves the split changed nothing. The engine still runs jobs the way
-the prototype did — one process, `threading.Thread`, `jobs.json` — and there is
-no database, no queue, no auth and no tenancy yet. Those are S2 through S5.
+**S3 of 21 is complete.**
+
+- **S1** — the monorepo split, typed configuration, and the golden harness that
+  proves the split changed nothing.
+- **S2** — Postgres + PostGIS with a hand-written GiST index, Alembic, and the
+  end of `jobs.json`: a job interrupted mid-graph is now a row someone can find
+  rather than a record that never existed. Once a job is terminal, the
+  repository refuses to change its status.
+- **S3** — layered HTTP with route handlers under 15 lines and no SQL, request
+  validation that answers 422 naming the field and listing what was acceptable,
+  and `packages/api-types` generated from the OpenAPI spec with a CI gate that
+  fails on drift.
+
+Still ahead before anything real runs through it: **S4** replaces
+`threading.Thread` with arq, and **S5** adds auth, firms, mandates and tenancy.
+Until S5, every caller can read every job — and jobs carry client transaction and
+title data.
 
 The plan, including what is structurally wrong today and the order it gets
 fixed, is in `REALESTATE_FACTORY_SPRINTS.md`. `CLAUDE.md` is how to work in the

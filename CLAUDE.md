@@ -18,10 +18,13 @@ packages/    api-types — generated from OpenAPI in CI (S3)
 ```bash
 make install     # uv sync + yarn install
 make dev         # postgis + redis + API :8004 + console :5173
-make test        # pytest (incl. the golden set) + vitest
+make test        # pytest (incl. the golden set) + vitest — no database needed
+make test-db     # repository tests against a live PostGIS
 make golden      # replay the golden set and diff against expected/
-make lint        # ruff + eslint
+make api-types   # regenerate packages/api-types from the OpenAPI spec
+make lint        # ruff + eslint + the money-column guard
 make migrate     # alembic upgrade head
+make schema-sql  # render the whole schema as DDL without touching a database
 ```
 
 `make help` lists everything.
@@ -63,7 +66,18 @@ string and the console never does arithmetic on it.
 
 **Migrations.** One revision per logical change, always hand-reviewed.
 Autogenerate does not emit PostGIS GiST indexes on `geom`, and it will happily
-type a money column as `Float`. `make migration m="..."` prints the checklist.
+type a money column as `Float`. `make migration m="..."` prints the checklist,
+`scripts/check_money_columns.py` fails the build on the second, and
+`make schema-sql` shows you the DDL a revision actually produces.
+
+**Job finality.** Once `jobs.terminal_at` is set, `jobRepository` refuses any
+further write to `status`. It is at the repository layer because there will be
+several writers — the web process, S4's worker, S13's retention sweep — and a
+rule enforced in one caller is a rule the next caller does not know about.
+
+**Types are generated, not mirrored.** `packages/api-types` comes from the
+backend's OpenAPI spec. Change a schema, run `make api-types`, commit the
+result — CI regenerates and diffs, so stale types fail the build.
 
 ## Things to know before you change something
 
@@ -76,6 +90,12 @@ type a money column as `Float`. `make migration m="..."` prints the checklist.
   the diff goes in the commit.
 - **`services/valuation/` is pure and deterministic.** No LLM call belongs in it,
   now or later.
+- **`Base` lives in `app/models/base.py`, not `configs/dbConfig.py`.** Reading the
+  schema — autogenerate, the money-column guard — must not require a database URL
+  or a provider key.
+- **The money-column guard currently checks zero real columns.** Nothing in the
+  first migration is monetary. It is proven against synthetic fixtures and
+  becomes load-bearing at S6/S7, when `Decimal` and the adjustment grid land.
 - **The reconciliation path and the trimmed-mean outlier handling are the two
   best things in the original prototype.** Protect both. (The trimmed mean stays
   only as a pre-adjustment sanity statistic from S7 — never as a value
@@ -92,3 +112,16 @@ type a money column as `Float`. `make migration m="..."` prints the checklist.
    **Decide before S14.**
 3. `repositories` vs `respositories` — **settled**: correct spelling, here and
    from now on. `ai-chat-be` has the typo; this repo does not copy it.
+
+## Sprint status
+
+| | Sprint | State |
+|---|---|---|
+| S1 | Monorepo split + typed config | done |
+| S2 | Postgres + PostGIS, Alembic, death of `jobs.json` | done — live-DB proofs run in CI |
+| S3 | Layered HTTP + generated API types | done |
+| S4 | arq + Redis | next |
+
+S2 and S3 are the last sprints before tenancy. Until S5 lands, every caller can
+read every job, and jobs carry client transaction and title data — so nothing
+real should go through this deployment yet.

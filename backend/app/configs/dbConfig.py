@@ -17,13 +17,11 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import DeclarativeBase
 
 from app.configs.envConfig import settings
+from app.models.base import Base
 
-
-class Base(DeclarativeBase):
-    """Declarative base for every model in `app/models/`."""
+__all__ = ["Base", "get_engine", "get_sessionmaker", "get_db"]
 
 
 @lru_cache(maxsize=1)

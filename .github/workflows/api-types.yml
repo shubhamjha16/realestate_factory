@@ -1,0 +1,55 @@
+name: api-types
+
+# The gate that makes one repository worth having: `packages/api-types` is
+# generated from the backend's OpenAPI spec, and a backend schema change that
+# has not been regenerated fails the build rather than becoming a 422 a valuer
+# discovers.
+
+on:
+  push:
+    branches: [main]
+    paths: ['backend/**', 'packages/api-types/**', '.github/workflows/api-types.yml']
+  pull_request:
+    paths: ['backend/**', 'packages/api-types/**', '.github/workflows/api-types.yml']
+
+concurrency:
+  group: api-types-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - run: uv python install 3.12
+      - run: uv sync --all-groups --frozen
+        working-directory: backend
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+
+      - name: regenerate the spec and the types
+        env:
+          # Importing the app requires it; nothing here calls a provider.
+          GROQ_API_KEY: ci-no-live-calls
+        run: |
+          uv run --project backend python backend/scripts/export_openapi.py
+          yarn workspace @realestate-factory/api-types generate
+
+      - name: fail if the committed types are stale
+        run: |
+          if ! git diff --exit-code -- packages/api-types; then
+            echo "::error::packages/api-types is out of date with the backend schema."
+            echo "::error::Run \`make api-types\` and commit the result."
+            exit 1
+          fi
+
+      - name: the console still typechecks against the regenerated types
+        run: yarn workspace realestate-factory-frontend typecheck

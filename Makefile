@@ -11,7 +11,8 @@ PY       := $(BACKEND)/.venv/bin/python
 export PYTHONHASHSEED := 0
 
 .PHONY: help install install-backend install-frontend dev dev-backend dev-frontend \
-        infra infra-down test test-backend test-frontend golden golden-record \
+        infra infra-down test test-backend test-frontend test-db golden golden-record \
+        api-types schema-sql \
         lint typecheck migrate migration build clean
 
 help: ## Show this help
@@ -60,6 +61,23 @@ test-backend: ## pytest, including the golden set
 test-frontend: ## vitest
 	yarn workspace realestate-factory-frontend test
 
+test-db: ## Repository tests against a live PostGIS (needs `make infra`)
+	@test -n "$$TEST_DATABASE_URL" || { \
+	  echo 'TEST_DATABASE_URL is not set. Try:'; \
+	  echo '  make infra'; \
+	  echo '  createdb -h localhost -p 5433 -U realestate realestate_test'; \
+	  echo '  TEST_DATABASE_URL=postgresql+asyncpg://realestate:realestate@localhost:5433/realestate_test make test-db'; \
+	  exit 1; }
+	cd $(BACKEND) && .venv/bin/python -m pytest tests/test_job_repository.py -q
+
+api-types: ## Regenerate packages/api-types from the backend's OpenAPI spec
+	# Importing the app requires GROQ_API_KEY by design; nothing here calls a
+	# provider, so a placeholder is enough when one is not already set.
+	cd $(BACKEND) && GROQ_API_KEY=$${GROQ_API_KEY:-spec-export-no-live-calls} \
+	  .venv/bin/python scripts/export_openapi.py
+	yarn workspace @realestate-factory/api-types generate
+	yarn workspace realestate-factory-frontend typecheck
+
 golden: ## Replay the golden set and diff against expected/
 	cd $(BACKEND) && .venv/bin/python tests/golden/runner.py --target package --mode replay
 
@@ -68,8 +86,9 @@ golden-record: ## Re-record the golden set against the live provider (needs GROQ
 	cd $(BACKEND) && .venv/bin/python tests/golden/runner.py \
 	  --target package --mode record --write-expected
 
-lint: ## ruff + eslint
+lint: ## ruff + eslint + the money-column guard
 	cd $(BACKEND) && .venv/bin/ruff check .
+	cd $(BACKEND) && .venv/bin/python scripts/check_money_columns.py
 	yarn workspace realestate-factory-frontend lint
 
 typecheck: ## mypy + tsc
@@ -80,6 +99,9 @@ typecheck: ## mypy + tsc
 
 migrate: ## alembic upgrade head
 	cd $(BACKEND) && .venv/bin/alembic upgrade head
+
+schema-sql: ## Render the full schema as DDL without touching a database
+	cd $(BACKEND) && .venv/bin/alembic upgrade head --sql
 
 migration: ## Autogenerate a revision — then hand-review it (m="message")
 	@test -n "$(m)" || { echo 'usage: make migration m="add properties"'; exit 1; }
