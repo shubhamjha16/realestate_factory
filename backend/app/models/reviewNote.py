@@ -27,6 +27,9 @@ class ReviewNote(TimestampMixin, Base):
             "status IN ('open','responded','closed')",
             name="ck_review_notes_status",
         ),
+        # An open note blocks a signature. An empty one would block it while
+        # saying nothing about why.
+        CheckConstraint("length(btrim(note)) > 0", name="ck_review_notes_has_note"),
     )
 
     id: Mapped[uuid.UUID] = uuid_pk()

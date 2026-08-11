@@ -171,8 +171,8 @@ terminal one alone.
 | S9 | Three approaches and their reconciliation | done |
 | S10 | Split `re_graph.py` + golden-set harness | done — 16 fixtures, all four paths |
 | S11 | Renderer hardening + model routing + cost ledger | done — the ledger has no table yet |
-| S12 | Provenance, documents, audit trail | code complete — **no migration** |
-| S13 | Review notes, sign-off, encryption, retention | code complete — **no migration** |
+| S12 | Provenance, documents, audit trail | done |
+| S13 | Review notes, sign-off, encryption, retention | done |
 | S14 | RERA, approvals, statutory compliance | done |
 | S15 | Report depth and export breadth | done |
 | S16 | Portfolio, rent roll, client view | done |
@@ -187,14 +187,15 @@ every comparable carries a written rationale per factor, and the sample is
 refused if it is too small, too old, too far away, or still disagrees after
 adjustment.
 
-**The gaps that will bite you are in the README's "Known gaps" section.** The one
-to read first: five tables — `deliverables`, `deliverable_versions`,
-`deliverable_sections`, `review_notes`, `audit_events` — are declared on
-`Base.metadata` but no Alembic revision creates them. `alembic upgrade head`
-yields a database where S12's provenance chain and S13's review and sign-off
-cannot run. Their live-DB tests skip without `TEST_DATABASE_URL` and the CI
-database job does not reach them, which is why it survived. `cost_entries`,
-`webhook_deliveries` and `node_runs` have no model at all.
+**The gaps that will bite you are in the README's "Known gaps" section.** The
+five tables S12 and S13 declare — `deliverables`, `deliverable_versions`,
+`deliverable_sections`, `review_notes`, `audit_events` — are created by revision
+`0005`, and the CI database job now runs those sprints' live-DB tests and asserts
+all five exist. That gap survived because the tests skip without
+`TEST_DATABASE_URL` and CI never ran them; both halves are closed.
+`cost_entries`, `webhook_deliveries` and `node_runs` still have no model at all,
+so S11's ledger fills a buffer nothing flushes and S18 computes per-attempt rows
+it discards.
 
 **Four exit proofs cannot be met in code**, each of which asks for a person: S7's
 "an IBBI-registered valuer reviews one full grid and signs it", S9's "a valuer

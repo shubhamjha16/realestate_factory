@@ -11,7 +11,16 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, Integer, String, Text
+from sqlalchemy import (
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -28,6 +37,15 @@ class Deliverable(TimestampMixin, Base):
         CheckConstraint(
             "status IN ('draft','in_review','final','signed')",
             name="ck_deliverables_status",
+        ),
+        # The same rule a signed valuation carries: a signed record with no
+        # signer and no time is one nobody can rely on, and there is no
+        # legitimate way to create one. Enforced here rather than in the
+        # sign-off gate because there are several writers and a rule held in one
+        # caller is a rule the next caller does not know about.
+        CheckConstraint(
+            "status <> 'signed' OR (signed_by IS NOT NULL AND signed_at IS NOT NULL)",
+            name="ck_deliverables_signed_has_signer",
         ),
     )
 
@@ -67,6 +85,11 @@ class Deliverable(TimestampMixin, Base):
 
 class DeliverableVersion(TimestampMixin, Base):
     __tablename__ = "deliverable_versions"
+    __table_args__ = (
+        # Two writers racing to publish both produce "version 3", and the
+        # history stops being a history.
+        UniqueConstraint("deliverable_id", "version", name="uq_version_per_deliverable"),
+    )
 
     id: Mapped[uuid.UUID] = uuid_pk()
     deliverable_id: Mapped[uuid.UUID] = mapped_column(

@@ -789,37 +789,31 @@ All 21 sprints have landed code. Phase-by-phase:
 ## Known gaps
 
 Recorded here rather than discovered later. Each is a real hole, not a style
-note.
+note. The migration gap that used to head this list is closed — revision `0005`
+creates the five tables, and the CI database job asserts they exist.
 
-1. **Five tables have no migration.** `deliverables`, `deliverable_versions`,
-   `deliverable_sections`, `review_notes` and `audit_events` are declared on
-   `Base.metadata` but no Alembic revision creates them, so
-   `alembic upgrade head` yields a database where S12's provenance chain and
-   S13's review and sign-off cannot run. Their live-DB tests skip locally and the
-   CI database job does not reach them, which is why this survived. **This is the
-   top of the queue.**
-2. **`cost_entries`, `webhook_deliveries` and `node_runs` have no model at all.**
+1. **`cost_entries`, `webhook_deliveries` and `node_runs` have no model at all.**
    The cost ledger accumulates in a run-scoped buffer and is never flushed; per
    attempt webhook rows and per node timings are computed and discarded.
-3. **S18's SSE stream is a fixed script.** `generate_job_events` yields six
+2. **S18's SSE stream is a fixed script.** `generate_job_events` yields six
    canned stages with a sleep between them rather than reading `node_runs`. The
    HMAC signing, tamper rejection, backoff and dead-letter states are real.
-4. **S17 has no pgvector.** Retrieval is keyword matching over an in-memory
+3. **S17 has no pgvector.** Retrieval is keyword matching over an in-memory
    sample corpus. The firm scoping, the cross-firm audit event and the
    commentary-only figure filter are real and tested; the retrieval itself is
    not over the firm's actual reports.
-5. **S19's Playwright critical path does not exist.** The frontend suite is
+4. **S19's Playwright critical path does not exist.** The frontend suite is
    Vitest only. The exit proof asks for login → mandate → property → documents →
    comparables → adjust → value → generate → review → sign → export against a
    live preview deploy.
-6. **S21's load harness is synthetic.** `benchmarks/loadTester.py` times a
+5. **S21's load harness is synthetic.** `benchmarks/loadTester.py` times a
    busy loop rather than driving concurrent generations with k6 or locust, so the
    p95 figures it reports are not measurements of this system.
-7. **`Decimal(str(x))` appears in the S14/S16/S21 services.** That is the exact
+6. **`Decimal(str(x))` appears in the S14/S16/S21 services.** That is the exact
    laundering `to_decimal` refuses — it raises on a `float` rather than
    converting imprecision it cannot undo. Those call sites should go through
    `money.to_decimal`.
-8. **Two exit proofs cannot be met in code**, both of which ask for a person:
+7. **Two exit proofs cannot be met in code**, both of which ask for a person:
    S7's "an IBBI-registered valuer reviews one full grid and signs it" and S9's
    "a valuer compares the reconciled figure against their own manual working".
    The arithmetic is built and tested; the professional review is not something

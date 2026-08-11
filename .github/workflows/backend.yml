@@ -135,6 +135,28 @@ jobs:
       - name: repository, tenancy and queue tests
         run: uv run pytest tests/test_job_repository.py tests/test_tenancy.py tests/test_queue.py -q
 
+      # S12 and S13 shipped their models without a migration, and this job is
+      # where that should have been caught. It was not, because these two files
+      # were never in the list — their live-DB tests skip without
+      # TEST_DATABASE_URL, so a suite with no database reported them as passing.
+      # Named explicitly rather than folded into the line above so that removing
+      # them is a visible decision.
+      - name: provenance, review and sign-off against the live schema
+        run: uv run pytest tests/test_s12_provenance_and_audit.py tests/test_s13_review_signoff_watermark.py -q
+
+      # The five tables 0005 adds are reachable only if the migration ran. A
+      # query against each is a cheaper and more direct proof than trusting that
+      # `alembic upgrade head` above did what it said.
+      - name: every table the models declare exists in the database
+        run: |
+          PGPASSWORD=realestate psql -h localhost -U realestate -d realestate_test -t -c \
+            "SELECT count(*) FROM information_schema.tables
+              WHERE table_schema = 'public' AND table_name IN
+              ('deliverables','deliverable_versions','deliverable_sections',
+               'review_notes','audit_events')" > /tmp/newtables.txt
+          test "$(tr -d '[:space:]' < /tmp/newtables.txt)" = "5" \
+            || { echo "::error::0005 did not create all five tables"; cat /tmp/newtables.txt; exit 1; }
+
       # S5's exit proof, asked of the schema rather than of the code: a row that
       # belongs to no firm is invisible to every tenant and therefore unauditable.
       - name: firm_id is NOT NULL on every tenanted table
