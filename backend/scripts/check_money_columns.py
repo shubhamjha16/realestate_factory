@@ -5,15 +5,6 @@ Fail if any monetary column is a float.
 Property values run to crores. `round(area * rate, 2)` on binary floats produces
 figures that will not reconcile across a portfolio, and a rent roll that should
 tie will not. Every monetary column in this schema is `NUMERIC(18,2)`.
-
-Two passes, because a column can be wrong in two places:
-
-  models      — every column registered on `Base.metadata`, checked by type.
-  migrations  — the revision files, checked by text, because a migration can
-                introduce a column the models never declared (a raw `op.execute`,
-                or a column added and later removed from the model).
-
-Run by `make lint`, by CI, and by `tests/test_schema_money.py`.
 """
 
 from __future__ import annotations
@@ -31,9 +22,6 @@ VERSIONS_DIR = BACKEND_ROOT / "alembic" / "versions"
 MONEY_PRECISION = 18
 MONEY_SCALE = 2
 
-# Column-name fragments that denote an amount of money. Deliberately broad: a
-# false positive costs one rename or one entry in ALLOWED_NON_MONEY; a false
-# negative costs a portfolio that does not add up.
 MONEY_NAME_PARTS = (
     "price", "amount", "value", "rent", "deposit", "cost", "consideration",
     "inr", "sanctioned", "released", "balance", "spent", "fee", "duty",
@@ -41,7 +29,6 @@ MONEY_NAME_PARTS = (
     "overdue", "outstanding",
 )
 
-# Names that match the fragments above but are not money.
 ALLOWED_NON_MONEY = frozenset({
     "rent_period",       # a unit of time
     "valuer_id",         # a user, not an amount — "valuer" contains "value"
@@ -50,6 +37,7 @@ ALLOWED_NON_MONEY = frozenset({
     "rate_unit",
     "amount_unit",
     "currency",
+    "current_version",   # version counter integer — "current" contains "rent"
 })
 
 FLOAT_IN_MIGRATION = re.compile(

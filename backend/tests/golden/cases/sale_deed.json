@@ -1,0 +1,30 @@
+{
+  "job_id": "golden-sale-001",
+  "job_type": "sale_deed",
+  "instructions": "Draft a sale_deed for conveyance of property\nClient: Rajesh Kumar as buyer and Suresh Sharma as seller\nProperty: Flat 402, Seawood Heights, Bandra West, Mumbai, Maharashtra 400050\nproperty type: residential apartment\nPurpose: sale deed registration consideration 45000000 rupees",
+  "property_data": "",
+  "property_id": "prop-golden-sale-001",
+  "evidence": {
+    "property_id": "prop-golden-sale-001",
+    "document_kinds": [
+      "title_deed",
+      "tax_receipt",
+      "encumbrance_cert"
+    ],
+    "title_chain_length": 2,
+    "title_chain_has_gap": false,
+    "encumbrance_count": 0,
+    "subsisting_encumbrances": 0,
+    "approvals": [
+      "oc"
+    ],
+    "document_ids_by_kind": {
+      "title_deed": [
+        "doc-td-sale"
+      ],
+      "encumbrance_cert": [
+        "doc-ec-sale"
+      ]
+    }
+  }
+}

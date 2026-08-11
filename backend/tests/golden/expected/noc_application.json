@@ -1,0 +1,33 @@
+{
+  "doc_type": "noc_application",
+  "parsed_format": "empty",
+  "parsed_record_count": 0,
+  "computed": {
+    "type": "empty"
+  },
+  "section_sequence": [
+    {
+      "heading": "Promoter Particulars",
+      "type": "standard_clause"
+    },
+    {
+      "heading": "Project Particulars",
+      "type": "standard_clause"
+    },
+    {
+      "heading": "Sanctioned Plan and Approvals",
+      "type": "standard_clause"
+    },
+    {
+      "heading": "Declaration and Undertaking",
+      "type": "standard_clause"
+    }
+  ],
+  "clause_count": 4,
+  "document_figures": [],
+  "document_line_count": 12,
+  "document_text_sha256": "ed96adb3a54b9e9cc8907e711b0200c7fbd6dc6b3db954ebbc4d6467f56506e2",
+  "doc_filename": "golden-noc-001_noc_application.docx",
+  "generation_errors": null,
+  "llm_call_count": 6
+}

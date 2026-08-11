@@ -1,0 +1,57 @@
+{
+  "doc_type": "due_diligence_report",
+  "parsed_format": "empty",
+  "parsed_record_count": 0,
+  "computed": {
+    "type": "empty"
+  },
+  "section_sequence": [
+    {
+      "heading": "Executive Summary",
+      "type": "executive_summary"
+    },
+    {
+      "heading": "Property Description",
+      "type": "property_description"
+    },
+    {
+      "heading": "Title Chain Analysis",
+      "type": "due_diligence_check"
+    },
+    {
+      "heading": "Encumbrance Review",
+      "type": "due_diligence_check"
+    },
+    {
+      "heading": "Approvals & Permissions",
+      "type": "due_diligence_check"
+    },
+    {
+      "heading": "Litigation Search",
+      "type": "due_diligence_check"
+    },
+    {
+      "heading": "Zoning & Land Use",
+      "type": "due_diligence_check"
+    },
+    {
+      "heading": "Risk Summary",
+      "type": "recommendations"
+    },
+    {
+      "heading": "Recommendations",
+      "type": "recommendations"
+    }
+  ],
+  "clause_count": 9,
+  "document_figures": [
+    "45",
+    "2,",
+    "560066"
+  ],
+  "document_line_count": 22,
+  "document_text_sha256": "9944cb66bdf226739df348905736110168246581f55b74d60a6f382fd49ff035",
+  "doc_filename": "golden-dd-001_due_diligence_report.docx",
+  "generation_errors": null,
+  "llm_call_count": 14
+}

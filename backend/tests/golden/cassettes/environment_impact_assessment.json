@@ -1,0 +1,26 @@
+{
+  "3175cd0b9fe3e4ebcdaf52f51391226a": {
+    "system_excerpt": "You are a real estate document intake agent. Extract metadata from the instructions and return a JSON object with keys: doc_type, client_name, property_address, property_type, purpose, special_notes. ",
+    "response": "{\"doc_type\": \"environment_impact_assessment\", \"client_name\": \"Green Developers Tech Private Limited\", \"property_address\": \"Sector 120, Mohali, Punjab\", \"property_type\": \"township development\", \"purpose\": \"environmental clearance assessment\", \"special_notes\": \"\"}"
+  },
+  "2a559e701badfb246a67a0a53bbee349": {
+    "system_excerpt": "You are a senior real estate consultant. Provide concise reference guidance for drafting the document. 3-4 paragraphs max.",
+    "response": "Applicable framework: the Real Estate (Regulation and Development) Act 2016, the Transfer of Property Act 1882, the Registration Act 1908 and the relevant State Stamp Act govern the instrument and its registration.\n\nMarket context: the locality is assessed on the evidence placed on record. No market figure is stated here; every figure in the deliverable is computed and carried through from the valuation lines.\n\nMethodology: the sales comparison, income capitalisation and cost approaches are each considered, and the conclusion is reconciled with a stated rationale per weight.\n\nDue diligence: title chain, encumbrance certificate, mutation records, approved plans, commencement and occupancy certificates and tax receipts are to be inspected."
+  },
+  "cd04acd1b8e33309c5206aeb7a1e639e": {
+    "system_excerpt": "You are a real estate compliance document architect. Build a compliance document structure as JSON. Return JSON only.",
+    "response": "{\"title\": \"Environment Impact Assessment\", \"sections\": [{\"heading\": \"Promoter Particulars\", \"clause_ref\": \"s.4(2)(a)\", \"notes\": \"Mandatory disclosure under s.4(2)(a).\"}, {\"heading\": \"Project Particulars\", \"clause_ref\": \"s.4(2)(b)\", \"notes\": \"Mandatory disclosure under s.4(2)(b).\"}, {\"heading\": \"Sanctioned Plan and Approvals\", \"clause_ref\": \"s.4(2)(c)\", \"notes\": \"Mandatory disclosure under s.4(2)(c).\"}, {\"heading\": \"Declaration and Undertaking\", \"clause_ref\": \"s.4(2)(l)\", \"notes\": \"Mandatory disclosure under s.4(2)(l).\"}]}"
+  },
+  "effc9fe1b93b9bda64c47bde88705e55": {
+    "system_excerpt": "You are a RERA authority officer reviewing a compliance document structure. Check: all mandatory disclosures present, correct regulatory references, proper format as per regulations. Return JSON only ",
+    "response": "{\"approved\": true, \"feedback\": \"Mandatory disclosures are present.\"}"
+  },
+  "9cc41fe535c74d79aa2a5decd1706682": {
+    "system_excerpt": "You are a real estate developer reviewing the compliance document structure. Check: practical completeness, no missing sections that could cause rejection, clear and actionable content. Return JSON on",
+    "response": "{\"approved\": true, \"feedback\": \"No section is missing that would cause rejection.\"}"
+  },
+  "a4f09d074a62aec42e884c153e6e14fe": {
+    "system_excerpt": "You are a real estate compliance document writer. Draft the complete compliance document. Return JSON array of clause objects: [{heading, content, type, clause_ref}]. Return JSON only.",
+    "response": "[{\"heading\": \"Promoter Particulars\", \"type\": \"standard_clause\", \"clause_ref\": \"s.4(2)(a)\", \"content\": \"Promoter Particulars: the particulars required under this head are furnished from the project records maintained by the promoter and are true to the best of the promoter's knowledge.\"}, {\"heading\": \"Project Particulars\", \"type\": \"standard_clause\", \"clause_ref\": \"s.4(2)(b)\", \"content\": \"Project Particulars: the particulars required under this head are furnished from the project records maintained by the promoter and are true to the best of the promoter's knowledge.\"}, {\"heading\": \"Sanctioned Plan and Approvals\", \"type\": \"standard_clause\", \"clause_ref\": \"s.4(2)(c)\", \"content\": \"Sanctioned Plan and Approvals: the particulars required under this head are furnished from the project records maintained by the promoter and are true to the best of the promoter's knowledge.\"}, {\"heading\": \"Declaration and Undertaking\", \"type\": \"standard_clause\", \"clause_ref\": \"s.4(2)(l)\", \"content\": \"Declaration and Undertaking: the particulars required under this head are furnished from the project records maintained by the promoter and are true to the best of the promoter's knowledge.\"}]"
+  }
+}

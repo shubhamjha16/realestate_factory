@@ -1,9 +1,7 @@
 """
 RE Renderer — Real Estate Factory
 Deterministic python-docx renderer. No LLM calls.
-Handles: executive_summary, property_description, market_analysis,
-         valuation_approach, due_diligence_check, construction_stage,
-         summary_table, unit_table, recommendations, conclusion, standard_clause.
+Handles draft watermarking, executive summary, tables, clauses.
 """
 
 import os
@@ -14,6 +12,7 @@ from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 
 from app.configs.envConfig import settings
+from app.services.render.clauseRegistry import validate_section_type
 
 OUTPUT_DIR = settings.OUTPUT_DIR
 
@@ -22,6 +21,7 @@ GOLD        = RGBColor(0xB8, 0x96, 0x0C)
 DARK_GREY   = RGBColor(0x3A, 0x3A, 0x3A)
 WHITE       = RGBColor(0xFF, 0xFF, 0xFF)
 LIGHT_BLUE  = RGBColor(0xE8, 0xF0, 0xFE)
+DRAFT_RED   = RGBColor(0xD3, 0x2F, 0x2F)
 
 
 def _shade_cell(cell, hex_colour):
@@ -52,8 +52,18 @@ def _para(doc, text, bold=False, size=11, colour=DARK_GREY):
     return p
 
 
-def _render_cover(doc, doc_type, client_name, property_address):
+def _render_cover(doc, doc_type, client_name, property_address, is_signed: bool = True):
     doc.add_paragraph()
+    
+    if not is_signed:
+        w = doc.add_paragraph()
+        w.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        wr = w.add_run("Draft — not for reliance")
+        wr.bold = True
+        wr.font.size = Pt(14)
+        wr.font.color.rgb = DRAFT_RED
+        doc.add_paragraph()
+
     t = doc.add_paragraph()
     t.alignment = WD_ALIGN_PARAGRAPH.CENTER
     r = t.add_run(doc_type.replace("_", " ").upper())
@@ -82,12 +92,10 @@ def _render_cover(doc, doc_type, client_name, property_address):
 def _render_summary_table(doc, clause):
     _heading(doc, clause.get("heading", "Summary"), level=2)
     content = clause.get("content", "")
-    # Parse key: value lines into a 2-col table
     lines = [l for l in content.split("\n") if l.strip()]
     kv = []
     for line in lines:
         if "|" in line:
-            # Already table-formatted — render as text
             _para(doc, line)
             continue
         if ":" in line:
@@ -177,6 +185,7 @@ def render(
     computed: dict,
     header_image_path: str = None,
     job_id: str = "job",
+    status: str = None,
 ) -> str:
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     doc = Document()
@@ -191,10 +200,15 @@ def render(
         doc.add_picture(header_image_path, width=Inches(6.0))
         doc.add_paragraph()
 
-    _render_cover(doc, doc_type, client_name, property_address)
+    # Fail closed: everything is a draft until a registered valuer signs it, so
+    # only the one status that means signed suppresses the watermark. A caller
+    # that forgets to pass a status gets the watermark, which is the safe error.
+    is_signed = status == "signed"
+    _render_cover(doc, doc_type, client_name, property_address, is_signed=is_signed)
 
     for clause in (clause_plan or []):
         clause_type = clause.get("type", "standard_clause")
+        validate_section_type(clause_type)
         fn = _RENDERERS.get(clause_type, _render_standard)
         fn(doc, clause)
 

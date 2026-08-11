@@ -59,8 +59,8 @@
     "62,",
     "201309"
   ],
-  "document_line_count": 21,
-  "document_text_sha256": "4ddbcebcf4a547b58217f90d68e48de45a863bb5e08f7050780abbed66aefa01",
+  "document_line_count": 22,
+  "document_text_sha256": "fa0b3fd8b816d26a74f08ce36dff95567b82869c8db30c5be33e7dbf255fe301",
   "doc_filename": "golden-val-001_valuation_report.docx",
   "generation_errors": null,
   "llm_call_count": 14

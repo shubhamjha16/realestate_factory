@@ -1,0 +1,25 @@
+{
+  "job_id": "golden-port-001",
+  "job_type": "portfolio_report",
+  "instructions": "Prepare a portfolio_report for asset valuation summary\nClient: Blackrock India Real Estate Fund\nProperty: National Commercial Portfolio (5 Assets across Mumbai, Bengaluru, Delhi NCR)\nproperty type: commercial portfolio\nPurpose: quarterly portfolio report",
+  "property_data": "property_name,property_type,area_sqft,current_value,monthly_rent,loan_outstanding\nPrestige Tech Park Unit A,commercial office,45000,450000000,4050000,120000000\nCyber City Tower 4,commercial office,60000,660000000,5700000,180000000\nMindspace Malad Unit 12,commercial office,35000,385000000,3325000,90000000\nCommerzone Yerwada,industrial warehouse,80000,480000000,3600000,110000000\n",
+  "property_id": "prop-golden-port-001",
+  "evidence": {
+    "property_id": "prop-golden-port-001",
+    "document_kinds": [
+      "title_deed"
+    ],
+    "title_chain_length": 1,
+    "title_chain_has_gap": false,
+    "encumbrance_count": 0,
+    "subsisting_encumbrances": 0,
+    "approvals": [
+      "oc"
+    ],
+    "document_ids_by_kind": {
+      "title_deed": [
+        "doc-td-port"
+      ]
+    }
+  }
+}

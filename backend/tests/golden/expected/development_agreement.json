@@ -1,0 +1,74 @@
+{
+  "doc_type": "development_agreement",
+  "parsed_format": "empty",
+  "parsed_record_count": 0,
+  "computed": {
+    "type": "empty"
+  },
+  "section_sequence": [
+    {
+      "heading": "Parties",
+      "type": "numbered_clause"
+    },
+    {
+      "heading": "Recitals",
+      "type": "numbered_clause"
+    },
+    {
+      "heading": "Subject Matter",
+      "type": "numbered_clause"
+    },
+    {
+      "heading": "Consideration",
+      "type": "numbered_clause"
+    },
+    {
+      "heading": "Representations",
+      "type": "numbered_clause"
+    },
+    {
+      "heading": "Covenants",
+      "type": "numbered_clause"
+    },
+    {
+      "heading": "Termination",
+      "type": "numbered_clause"
+    },
+    {
+      "heading": "Stamp Duty and Registration",
+      "type": "numbered_clause"
+    },
+    {
+      "heading": "Execution",
+      "type": "numbered_clause"
+    }
+  ],
+  "clause_count": 9,
+  "document_figures": [
+    "102,",
+    "411028",
+    "1882,",
+    "1908",
+    "1882,",
+    "1908",
+    "1882,",
+    "1908",
+    "1882,",
+    "1908",
+    "1882,",
+    "1908",
+    "1882,",
+    "1908",
+    "1882,",
+    "1908",
+    "1882,",
+    "1908",
+    "1882,",
+    "1908"
+  ],
+  "document_line_count": 22,
+  "document_text_sha256": "4d2754f1f1d9132d233905c3a4cad5f24df9103df1673617f844c244823b995a",
+  "doc_filename": "golden-dev-001_development_agreement.docx",
+  "generation_errors": null,
+  "llm_call_count": 3
+}

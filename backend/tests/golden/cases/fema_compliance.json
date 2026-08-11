@@ -1,0 +1,25 @@
+{
+  "job_id": "golden-fema-001",
+  "job_type": "fema_compliance",
+  "instructions": "Prepare a fema_compliance certificate for cross-border investment\nClient: Capital Land Overseas Private Limited\nProperty: Cyber Towers, Gachibowli, Hyderabad, Telangana\nproperty type: commercial office\nPurpose: FEMA foreign investment compliance check",
+  "property_data": "",
+  "property_id": "prop-golden-fema-001",
+  "evidence": {
+    "property_id": "prop-golden-fema-001",
+    "document_kinds": [
+      "title_deed"
+    ],
+    "title_chain_length": 1,
+    "title_chain_has_gap": false,
+    "encumbrance_count": 0,
+    "subsisting_encumbrances": 0,
+    "approvals": [
+      "oc"
+    ],
+    "document_ids_by_kind": {
+      "title_deed": [
+        "doc-td-fema"
+      ]
+    }
+  }
+}

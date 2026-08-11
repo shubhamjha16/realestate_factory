@@ -1,0 +1,33 @@
+{
+  "doc_type": "fema_compliance",
+  "parsed_format": "empty",
+  "parsed_record_count": 0,
+  "computed": {
+    "type": "empty"
+  },
+  "section_sequence": [
+    {
+      "heading": "Promoter Particulars",
+      "type": "standard_clause"
+    },
+    {
+      "heading": "Project Particulars",
+      "type": "standard_clause"
+    },
+    {
+      "heading": "Sanctioned Plan and Approvals",
+      "type": "standard_clause"
+    },
+    {
+      "heading": "Declaration and Undertaking",
+      "type": "standard_clause"
+    }
+  ],
+  "clause_count": 4,
+  "document_figures": [],
+  "document_line_count": 12,
+  "document_text_sha256": "833f0c208177b44605f311bc15719ed28ccf19faafd3fe8357170b845e6b156c",
+  "doc_filename": "golden-fema-001_fema_compliance.docx",
+  "generation_errors": null,
+  "llm_call_count": 6
+}

@@ -1,0 +1,26 @@
+{
+  "job_id": "golden-eia-001",
+  "job_type": "environment_impact_assessment",
+  "instructions": "Draft an environment_impact_assessment compliance report\nClient: Green Developers Tech Private Limited\nProperty: Sector 120, Mohali, Punjab\nproperty type: township development\nPurpose: environmental clearance assessment",
+  "property_data": "",
+  "property_id": "prop-golden-eia-001",
+  "evidence": {
+    "property_id": "prop-golden-eia-001",
+    "document_kinds": [
+      "plan"
+    ],
+    "title_chain_length": 1,
+    "title_chain_has_gap": false,
+    "encumbrance_count": 0,
+    "subsisting_encumbrances": 0,
+    "approvals": [
+      "noc_env",
+      "layout"
+    ],
+    "document_ids_by_kind": {
+      "plan": [
+        "doc-plan-eia"
+      ]
+    }
+  }
+}

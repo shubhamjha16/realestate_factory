@@ -1,0 +1,33 @@
+{
+  "job_id": "golden-dd-001",
+  "job_type": "due_diligence_report",
+  "instructions": "Prepare a due_diligence_report for land acquisition\nClient: Vantage Realty Fund\nProperty: Survey No 45/2, Village Whitefield, KKR Hobli, Bengaluru, Karnataka 560066\nproperty type: land parcel\nPurpose: due diligence loan security assessment",
+  "property_data": "",
+  "property_id": "prop-golden-dd-001",
+  "evidence": {
+    "property_id": "prop-golden-dd-001",
+    "document_kinds": [
+      "title_deed",
+      "mutation",
+      "encumbrance_cert"
+    ],
+    "title_chain_length": 3,
+    "title_chain_has_gap": false,
+    "encumbrance_count": 0,
+    "subsisting_encumbrances": 0,
+    "approvals": [
+      "layout"
+    ],
+    "document_ids_by_kind": {
+      "title_deed": [
+        "doc-td-dd"
+      ],
+      "mutation": [
+        "doc-mut-dd"
+      ],
+      "encumbrance_cert": [
+        "doc-ec-dd"
+      ]
+    }
+  }
+}

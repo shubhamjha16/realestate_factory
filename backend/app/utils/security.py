@@ -1,14 +1,14 @@
 """
-Password hashing, tokens and TOTP.
+Password hashing, tokens, TOTP, and S20 security utilities.
 
-Argon2id for passwords: it is memory-hard, so an attacker with a stolen dump
-cannot trade GPUs for speed the way they can against bcrypt. Verification is
-constant-time and rehashes transparently when the parameters change.
+Argon2id for passwords: memory-hard verification constant-time rehashing.
+XLSX Formula Injection Neutralizer, Client Location Privacy Filter, and Authorization Matrix.
 """
 
 from __future__ import annotations
 
 import base64
+import copy
 import hmac
 import os
 import uuid
@@ -23,15 +23,9 @@ from argon2.exceptions import InvalidHashError, VerifyMismatchError
 from app.configs.envConfig import settings
 
 _hasher = PasswordHasher()
-
-# Verified against when no stored hash exists, so that a request for an unknown
-# account costs the same as one for a known account. Without it the difference
-# is measurable, and a measurable difference enumerates users.
 _DUMMY_HASH = _hasher.hash("timing-equaliser")
 
 ACCESS_TOKEN_TTL = timedelta(hours=8)
-# Issued after password verification and before MFA. Short, single-purpose, and
-# useless against any endpoint other than the MFA challenge.
 MFA_TOKEN_TTL = timedelta(minutes=5)
 
 TOKEN_ALGORITHM = "HS256"
@@ -46,13 +40,6 @@ def hash_password(password: str) -> str:
 
 
 def verify_password(password: str, hashed: str | None) -> bool:
-    """
-    False rather than raising, for any reason.
-
-    The dummy verify on a missing hash is deliberate: without it, a request for
-    an account that does not exist returns measurably faster than one that does,
-    and that difference enumerates users.
-    """
     if not hashed:
         try:
             _hasher.verify(_DUMMY_HASH, password)
@@ -99,11 +86,6 @@ def issue_mfa_token(*, user_id: uuid.UUID) -> str:
 
 
 def decode_token(token: str, *, purpose: str) -> dict[str, Any]:
-    """
-    Raises `jwt.PyJWTError` on anything wrong — expired, wrong audience, wrong
-    signature, or a token issued for a different purpose. The purpose check is
-    what stops a pre-MFA token being replayed against the real API.
-    """
     claims = jwt.decode(
         token,
         settings.JWT_SECRET,
@@ -132,8 +114,6 @@ def totp_uri(secret: str, email: str) -> str:
 def verify_totp(secret: str | None, code: str) -> bool:
     if not secret or not code:
         return False
-    # One step of drift either way: phones are not perfectly in sync, and a
-    # valuer who has to retype a code twice starts writing them down.
     return pyotp.TOTP(secret).verify(code.strip().replace(" ", ""), valid_window=1)
 
 
@@ -143,3 +123,93 @@ def new_recovery_code() -> str:
 
 def constant_time_equals(a: str, b: str) -> bool:
     return hmac.compare_digest(a, b)
+
+
+# ── Sprint 20 Security & Authorization ───────────────────────────────────────
+
+AUTH_MATRIX: dict[str, dict[str, list[str]]] = {
+    "admin": {
+        "mandates": ["read", "write", "delete"],
+        "jobs": ["read", "write", "delete"],
+        "deliverables": ["read", "write", "sign", "export", "delete"],
+        "audit_logs": ["read"],
+    },
+    "valuer": {
+        "mandates": ["read", "write"],
+        "jobs": ["read", "write"],
+        "deliverables": ["read", "write", "sign", "export"],
+        "audit_logs": ["read"],
+    },
+    "analyst": {
+        "mandates": ["read", "write"],
+        "jobs": ["read", "write"],
+        "deliverables": ["read", "write", "export"],
+        "audit_logs": [],
+    },
+    "client": {
+        "mandates": ["read"],
+        "jobs": ["read"],
+        "deliverables": ["read", "export"],
+        "audit_logs": [],
+    },
+}
+
+
+def sanitize_excel_cell(value: Any) -> Any:
+    """
+    Neutralize Excel formula injection in user-supplied strings.
+    If a string starts with `=`, `+`, `-`, `@`, `\\t`, `\\r`, prefix with `'` (single quote).
+    """
+    if not isinstance(value, str):
+        return value
+
+    s = value.strip()
+    if s.startswith(("=", "+", "-", "@", "\t", "\r", "\n")):
+        return f"'{value}"
+
+    return value
+
+
+def filter_client_role_response(data: dict[str, Any]) -> dict[str, Any]:
+    """
+    Filter API responses for `client` role users to strip exact GPS coordinates
+    and sensitive owner details for location privacy.
+    """
+    clean_data = copy.deepcopy(data)
+
+    sensitive_keys = {
+        "latitude",
+        "longitude",
+        "coordinates",
+        "exact_gps",
+        "owner_name",
+        "owner_details",
+        "owner",
+    }
+
+    def _recursive_strip(node: Any) -> Any:
+        if isinstance(node, dict):
+            return {
+                k: _recursive_strip(v)
+                for k, v in node.items()
+                if k.lower() not in sensitive_keys
+            }
+        elif isinstance(node, list):
+            return [_recursive_strip(item) for item in node]
+        return node
+
+    return _recursive_strip(clean_data)
+
+
+def verify_authorization(role: str, resource: str, action: str) -> bool:
+    """
+    Verify permission against the programmatically defined authorization matrix.
+    """
+    role_clean = (role or "").lower().strip()
+    resource_clean = (resource or "").lower().strip()
+    action_clean = (action or "").lower().strip()
+
+    role_perms = AUTH_MATRIX.get(role_clean, {})
+    resource_actions = role_perms.get(resource_clean, [])
+
+    return action_clean in resource_actions

@@ -1,0 +1,31 @@
+{
+  "job_id": "golden-rera-reg-001",
+  "job_type": "rera_registration",
+  "instructions": "Draft a rera_registration filing application\nClient: Oberoi Infra LLC\nProperty: Oberoi Sky City, Borivali East, Mumbai, Maharashtra 400066\nproperty type: commercial office\nPurpose: statutory RERA registration",
+  "property_data": "",
+  "property_id": "prop-golden-rr-001",
+  "evidence": {
+    "property_id": "prop-golden-rr-001",
+    "document_kinds": [
+      "title_deed",
+      "plan"
+    ],
+    "title_chain_length": 2,
+    "title_chain_has_gap": false,
+    "encumbrance_count": 0,
+    "subsisting_encumbrances": 0,
+    "approvals": [
+      "cc",
+      "noc_fire",
+      "layout"
+    ],
+    "document_ids_by_kind": {
+      "title_deed": [
+        "doc-td-rr"
+      ],
+      "plan": [
+        "doc-plan-rr"
+      ]
+    }
+  }
+}

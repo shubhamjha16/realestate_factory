@@ -1,0 +1,30 @@
+{
+  "job_id": "golden-cd-001",
+  "job_type": "construction_disbursement_report",
+  "instructions": "Prepare a construction_disbursement_report for loan tranche release\nClient: HDFC Capital\nProperty: Grand Horizons Project, Sector 78, Gurgaon, Haryana\nproperty type: residential project\nPurpose: disbursement approval",
+  "property_data": "stage_name,planned_pct,actual_pct,disbursement_sanctioned,disbursement_released\nFoundation & Excavation,15,15,15000000,15000000\nPlinth Level,25,25,25000000,25000000\n5th Floor Slab,45,40,45000000,40000000\nFinishing & MEP,80,60,80000000,60000000\nCompletion,100,60,100000000,60000000\n",
+  "property_id": "prop-golden-cd-001",
+  "evidence": {
+    "property_id": "prop-golden-cd-001",
+    "document_kinds": [
+      "title_deed",
+      "plan"
+    ],
+    "title_chain_length": 2,
+    "title_chain_has_gap": false,
+    "encumbrance_count": 0,
+    "subsisting_encumbrances": 0,
+    "approvals": [
+      "cc",
+      "layout"
+    ],
+    "document_ids_by_kind": {
+      "title_deed": [
+        "doc-td-cd"
+      ],
+      "plan": [
+        "doc-plan-cd"
+      ]
+    }
+  }
+}

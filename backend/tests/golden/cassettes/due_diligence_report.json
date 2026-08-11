@@ -1,0 +1,58 @@
+{
+  "a6d05fd883787e56d3f2051b3a35e347": {
+    "system_excerpt": "You are a real estate document intake agent. Extract metadata from the instructions and return a JSON object with keys: doc_type, client_name, property_address, property_type, purpose, special_notes. ",
+    "response": "{\"doc_type\": \"due_diligence_report\", \"client_name\": \"Vantage Realty Fund\", \"property_address\": \"Survey No 45/2, Village Whitefield, KKR Hobli, Bengaluru, Karnataka 560066\", \"property_type\": \"land parcel\", \"purpose\": \"due diligence loan security assessment\", \"special_notes\": \"\"}"
+  },
+  "ac03c065c823c31e167229a5f7cdfef3": {
+    "system_excerpt": "You are a senior real estate consultant. Provide concise reference guidance for drafting the document. 3-4 paragraphs max.",
+    "response": "Applicable framework: the Real Estate (Regulation and Development) Act 2016, the Transfer of Property Act 1882, the Registration Act 1908 and the relevant State Stamp Act govern the instrument and its registration.\n\nMarket context: the locality is assessed on the evidence placed on record. No market figure is stated here; every figure in the deliverable is computed and carried through from the valuation lines.\n\nMethodology: the sales comparison, income capitalisation and cost approaches are each considered, and the conclusion is reconciled with a stated rationale per weight.\n\nDue diligence: title chain, encumbrance certificate, mutation records, approved plans, commencement and occupancy certificates and tax receipts are to be inspected."
+  },
+  "167db9bffb63198773899c374019429e": {
+    "system_excerpt": "You are a real estate report architect. Build a structured report outline as a JSON object. Return JSON only.",
+    "response": "{\"title\": \"Due Diligence Report\", \"sections\": [{\"heading\": \"Executive Summary\", \"type\": \"executive_summary\", \"notes\": \"Address executive summary on the evidence of record.\"}, {\"heading\": \"Property Description\", \"type\": \"property_description\", \"notes\": \"Address property description on the evidence of record.\"}, {\"heading\": \"Title Chain Analysis\", \"type\": \"due_diligence_check\", \"notes\": \"Address title chain analysis on the evidence of record.\"}, {\"heading\": \"Encumbrance Review\", \"type\": \"due_diligence_check\", \"notes\": \"Address encumbrance review on the evidence of record.\"}, {\"heading\": \"Approvals & Permissions\", \"type\": \"due_diligence_check\", \"notes\": \"Address approvals & permissions on the evidence of record.\"}, {\"heading\": \"Litigation Search\", \"type\": \"due_diligence_check\", \"notes\": \"Address litigation search on the evidence of record.\"}, {\"heading\": \"Zoning & Land Use\", \"type\": \"due_diligence_check\", \"notes\": \"Address zoning & land use on the evidence of record.\"}, {\"heading\": \"Risk Summary\", \"type\": \"recommendations\", \"notes\": \"Address risk summary on the evidence of record.\"}, {\"heading\": \"Recommendations\", \"type\": \"recommendations\", \"notes\": \"Address recommendations on the evidence of record.\"}]}"
+  },
+  "629e0ceb925d39dd57caa968640decd6": {
+    "system_excerpt": "You are a registered valuer (IBBI) reviewing a real estate report structure. Check: correct valuation methodology, adequate market evidence, regulatory compliance (RERA, Companies Act for valuations),",
+    "response": "{\"approved\": true, \"feedback\": \"Methodology and approach coverage are adequate.\"}"
+  },
+  "6cd496f220a7052bcc93fd20717b5227": {
+    "system_excerpt": "You are a property buyer/bank reviewing the report structure for clarity and usability. Check: clear conclusion, actionable risk summary, easy navigation, sufficient supporting data. Return JSON only ",
+    "response": "{\"approved\": true, \"feedback\": \"Conclusion and risk summary are locatable.\"}"
+  },
+  "ba9919934169af3d749e5807e88216fb": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Executive Summary\", \"content\": \"This section sets out the executive summary for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"executive_summary\"}"
+  },
+  "e4f38ef8879a348a38e39faf542ad211": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Property Description\", \"content\": \"This section sets out the property description for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"property_description\"}"
+  },
+  "0a858cb0fa09694c26cc751d8de1a5f3": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Title Chain Analysis\", \"content\": \"This section sets out the title chain analysis for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"due_diligence_check\"}"
+  },
+  "21422768aa4cf9226bf7398b040b3a1f": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Encumbrance Review\", \"content\": \"This section sets out the encumbrance review for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"due_diligence_check\"}"
+  },
+  "6aaa0d8dc2966929dfb272ae575e8912": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Approvals & Permissions\", \"content\": \"This section sets out the approvals & permissions for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"due_diligence_check\"}"
+  },
+  "f63160701124b13fd6a4e2db6a9ab2c2": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Litigation Search\", \"content\": \"This section sets out the litigation search for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"due_diligence_check\"}"
+  },
+  "1dba29464a83cba367f7e06383ccc3fa": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Zoning & Land Use\", \"content\": \"This section sets out the zoning & land use for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"due_diligence_check\"}"
+  },
+  "b7509fc87d21c03dfabdf7e9a0eb01bb": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Risk Summary\", \"content\": \"This section sets out the risk summary for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"recommendations\"}"
+  },
+  "b13f5530b4323ccd6168505242f2dea0": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Recommendations\", \"content\": \"This section sets out the recommendations for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"recommendations\"}"
+  }
+}

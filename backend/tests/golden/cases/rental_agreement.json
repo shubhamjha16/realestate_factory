@@ -1,0 +1,25 @@
+{
+  "job_id": "golden-rental-001",
+  "job_type": "rental_agreement",
+  "instructions": "Draft a rental_agreement for residential premises\nClient: Amit Verma as tenant and Priya Nair as owner\nProperty: Villa 12, Palm Meadows, Whitefield, Bengaluru, Karnataka\nproperty type: residential villa\nPurpose: 11 month rental agreement rent 85000 rupees per month deposit 500000 rupees",
+  "property_data": "",
+  "property_id": "prop-golden-rental-001",
+  "evidence": {
+    "property_id": "prop-golden-rental-001",
+    "document_kinds": [
+      "title_deed"
+    ],
+    "title_chain_length": 1,
+    "title_chain_has_gap": false,
+    "encumbrance_count": 0,
+    "subsisting_encumbrances": 0,
+    "approvals": [
+      "oc"
+    ],
+    "document_ids_by_kind": {
+      "title_deed": [
+        "doc-td-rent"
+      ]
+    }
+  }
+}

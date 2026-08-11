@@ -1,18 +1,22 @@
 """
 Model registry.
 
-Importing this module registers every model on `Base.metadata`, which is what
-Alembic's autogenerate and the money-column schema test both read. A model that
-is not imported here is invisible to both — so a new model file goes in this
-list in the same commit that creates it.
+Importing this module registers every model on `Base.metadata`.
 """
 
+from app.models.auditEvent import AuditEvent
 from app.models.base import Area, Money, Percent
 from app.models.client import CLIENT_KINDS, Client
 from app.models.comparable import (
     ADJUSTMENT_FACTORS,
     Comparable,
     ComparableAdjustment,
+)
+from app.models.deliverable import (
+    DELIVERABLE_STATUSES,
+    Deliverable,
+    DeliverableSection,
+    DeliverableVersion,
 )
 from app.models.firm import Firm
 from app.models.job import JOB_STATUSES, TERMINAL_STATUSES, Job
@@ -33,6 +37,7 @@ from app.models.propertyDocument import (
     PropertyDocument,
     TitleChainEntry,
 )
+from app.models.reviewNote import REVIEW_NOTE_STATUSES, ReviewNote
 from app.models.user import USER_ROLES, User
 from app.models.valuation import (
     APPROACH_METHODS,
@@ -80,4 +85,11 @@ __all__ = [
     "VALUATION_PREMISES",
     "VALUATION_STATUSES",
     "APPROACH_METHODS",
+    "Deliverable",
+    "DeliverableVersion",
+    "DeliverableSection",
+    "DELIVERABLE_STATUSES",
+    "AuditEvent",
+    "ReviewNote",
+    "REVIEW_NOTE_STATUSES",
 ]

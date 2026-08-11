@@ -1,0 +1,23 @@
+{
+  "job_id": "golden-mou-001",
+  "job_type": "mou",
+  "instructions": "Draft a mou for proposed property transaction\nClient: BlueStar Holdings Private Limited and Horizon Infra Projects\nProperty: Plot 88, Financial District, Nanakramguda, Hyderabad, Telangana\nproperty type: commercial land\nPurpose: memorandum of understanding for exclusive negotiation",
+  "property_data": "",
+  "property_id": "prop-golden-mou-001",
+  "evidence": {
+    "property_id": "prop-golden-mou-001",
+    "document_kinds": [
+      "title_deed"
+    ],
+    "title_chain_length": 1,
+    "title_chain_has_gap": false,
+    "encumbrance_count": 0,
+    "subsisting_encumbrances": 0,
+    "approvals": [],
+    "document_ids_by_kind": {
+      "title_deed": [
+        "doc-td-mou"
+      ]
+    }
+  }
+}

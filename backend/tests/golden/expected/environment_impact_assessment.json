@@ -1,0 +1,35 @@
+{
+  "doc_type": "environment_impact_assessment",
+  "parsed_format": "empty",
+  "parsed_record_count": 0,
+  "computed": {
+    "type": "empty"
+  },
+  "section_sequence": [
+    {
+      "heading": "Promoter Particulars",
+      "type": "standard_clause"
+    },
+    {
+      "heading": "Project Particulars",
+      "type": "standard_clause"
+    },
+    {
+      "heading": "Sanctioned Plan and Approvals",
+      "type": "standard_clause"
+    },
+    {
+      "heading": "Declaration and Undertaking",
+      "type": "standard_clause"
+    }
+  ],
+  "clause_count": 4,
+  "document_figures": [
+    "120,"
+  ],
+  "document_line_count": 12,
+  "document_text_sha256": "7290338770ab2c9d02cc49fec5daef34cf6c5c77fab80211bc02615eb6a4c6f2",
+  "doc_filename": "golden-eia-001_environment_impact_assessment.docx",
+  "generation_errors": null,
+  "llm_call_count": 6
+}

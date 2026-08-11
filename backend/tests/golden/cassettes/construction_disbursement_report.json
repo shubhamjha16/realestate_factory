@@ -1,0 +1,46 @@
+{
+  "81fb228100805bc3496cf7f896dfe555": {
+    "system_excerpt": "You are a real estate document intake agent. Extract metadata from the instructions and return a JSON object with keys: doc_type, client_name, property_address, property_type, purpose, special_notes. ",
+    "response": "{\"doc_type\": \"construction_disbursement_report\", \"client_name\": \"HDFC Capital\", \"property_address\": \"Grand Horizons Project, Sector 78, Gurgaon, Haryana\", \"property_type\": \"residential project\", \"purpose\": \"disbursement approval\", \"special_notes\": \"\"}"
+  },
+  "8482a533fc7b4a88d657cef98b8328df": {
+    "system_excerpt": "You are a senior real estate consultant. Provide concise reference guidance for drafting the document. 3-4 paragraphs max.",
+    "response": "Applicable framework: the Real Estate (Regulation and Development) Act 2016, the Transfer of Property Act 1882, the Registration Act 1908 and the relevant State Stamp Act govern the instrument and its registration.\n\nMarket context: the locality is assessed on the evidence placed on record. No market figure is stated here; every figure in the deliverable is computed and carried through from the valuation lines.\n\nMethodology: the sales comparison, income capitalisation and cost approaches are each considered, and the conclusion is reconciled with a stated rationale per weight.\n\nDue diligence: title chain, encumbrance certificate, mutation records, approved plans, commencement and occupancy certificates and tax receipts are to be inspected."
+  },
+  "ff2093408e45a6233279d9a23bb46716": {
+    "system_excerpt": "You are a real estate report architect. Build a structured report outline as a JSON object. Return JSON only.",
+    "response": "{\"title\": \"Construction Disbursement Report\", \"sections\": [{\"heading\": \"Executive Summary\", \"type\": \"executive_summary\", \"notes\": \"Address executive summary on the evidence of record.\"}, {\"heading\": \"Project Overview\", \"type\": \"property_description\", \"notes\": \"Address project overview on the evidence of record.\"}, {\"heading\": \"Stage-wise Progress\", \"type\": \"construction_stage\", \"notes\": \"Address stage-wise progress on the evidence of record.\"}, {\"heading\": \"Disbursement Eligibility\", \"type\": \"construction_stage\", \"notes\": \"Address disbursement eligibility on the evidence of record.\"}, {\"heading\": \"Outstanding Tranches\", \"type\": \"construction_stage\", \"notes\": \"Address outstanding tranches on the evidence of record.\"}, {\"heading\": \"Recommendations\", \"type\": \"recommendations\", \"notes\": \"Address recommendations on the evidence of record.\"}]}"
+  },
+  "ee759ef71a55a378bafeceecdaa52877": {
+    "system_excerpt": "You are a registered valuer (IBBI) reviewing a real estate report structure. Check: correct valuation methodology, adequate market evidence, regulatory compliance (RERA, Companies Act for valuations),",
+    "response": "{\"approved\": true, \"feedback\": \"Methodology and approach coverage are adequate.\"}"
+  },
+  "4fcd82f989ccb9a0e84be8111ffd991d": {
+    "system_excerpt": "You are a property buyer/bank reviewing the report structure for clarity and usability. Check: clear conclusion, actionable risk summary, easy navigation, sufficient supporting data. Return JSON only ",
+    "response": "{\"approved\": true, \"feedback\": \"Conclusion and risk summary are locatable.\"}"
+  },
+  "76490c3b43cf254e86410cf2a1c15fe9": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Executive Summary\", \"content\": \"This section sets out the executive summary for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"executive_summary\"}"
+  },
+  "1acfa52f3d4ecf1ad570a86c7ef792bc": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Project Overview\", \"content\": \"This section sets out the project overview for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"property_description\"}"
+  },
+  "ff34b406d0f2ee6c44159fe661f52a30": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Stage-wise Progress\", \"content\": \"This section sets out the stage-wise progress for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"construction_stage\"}"
+  },
+  "b3a64c1e8fe1cb98f9922629537b899b": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Disbursement Eligibility\", \"content\": \"This section sets out the disbursement eligibility for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"construction_stage\"}"
+  },
+  "07386a6d2a45c4ad7dbc2ba883a4a9ef": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Outstanding Tranches\", \"content\": \"This section sets out the outstanding tranches for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"construction_stage\"}"
+  },
+  "266c6980e64fa85f2b248185613f2309": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Recommendations\", \"content\": \"This section sets out the recommendations for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"recommendations\"}"
+  }
+}

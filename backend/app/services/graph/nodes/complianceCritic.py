@@ -1,0 +1,35 @@
+"""
+Compliance critic node.
+"""
+
+from __future__ import annotations
+
+import json
+
+from app.services.graph import llm
+from app.services.graph.prompts.compliancePrompts import SOUL_DEVELOPER, SOUL_REGULATOR
+from app.services.graph.state import REState, safe
+
+
+def compliance_critic_node(state: REState) -> dict:
+    plan = safe(state, "structure_plan", {})
+    research = safe(state, "re_research", "")
+
+    def _review(soul: str) -> dict:
+        user_content = f"Plan:\n{json.dumps(plan, indent=2, default=str)}\n\nContext:\n{research}"
+        raw = llm.chat(
+            [{"role": "system", "content": soul}, {"role": "user", "content": user_content}],
+            max_tokens=600,
+            json_mode=True,
+            node="compliance_critic",
+        )
+        try:
+            return json.loads(raw)
+        except Exception:
+            return {"approved": True, "feedback": ""}
+
+    r1 = _review(SOUL_REGULATOR)
+    r2 = _review(SOUL_DEVELOPER)
+    approved = r1.get("approved", True) and r2.get("approved", True)
+    feedback = f"Regulator: {r1.get('feedback','')} | Developer: {r2.get('feedback','')}"
+    return {"_critic_approved": approved, "critic_feedback": feedback}

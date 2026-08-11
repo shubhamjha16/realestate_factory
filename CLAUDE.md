@@ -97,7 +97,8 @@ terminal one alone.
 
 - **`PYTHONHASHSEED=0` is required to run the tests.** `intake_node` builds its
   prompt by joining a set, so the prompt text differs between processes and the
-  golden cassettes stop matching. `make test` sets it. S10 fixes the cause.
+  golden cassettes stop matching. `make test` sets it. S10 split the graph but
+  left `intake_node`'s set join in place, so this is still required.
 - **The golden set is the regression net.** Four cases, one per graph path, with
   the LLM replaced by a cassette. Figures are compared exactly — a paisa of drift
   fails. If a prompt change is intended, `make golden-record` re-records it and
@@ -124,9 +125,9 @@ terminal one alone.
 - **`Base` lives in `app/models/base.py`, not `configs/dbConfig.py`.** Reading the
   schema — autogenerate, the money-column guard — must not require a database URL
   or a provider key.
-- **The money-column guard currently checks zero real columns.** Nothing in the
-  first migration is monetary. It is proven against synthetic fixtures and
-  becomes load-bearing at S6/S7, when `Decimal` and the adjustment grid land.
+- **The money-column guard is load-bearing.** It now covers 7 real monetary
+  columns across the comparables, encumbrance and valuation tables, in the models
+  by type and in the migrations by text. Adding an amount is how you find out.
 - **`JWT_SECRET` has no default.** A shipped default means anyone who reads this
   repository can mint a token for any firm. Boot fails naming it, like
   `GROQ_API_KEY`.
@@ -168,19 +169,36 @@ terminal one alone.
 | S7 | The comparable adjustment grid | done |
 | S8 | The evidence gate | done |
 | S9 | Three approaches and their reconciliation | done |
-| S10 | Split `re_graph.py` + golden-set harness | next — Phase 2 begins |
+| S10 | Split `re_graph.py` + golden-set harness | done — 16 fixtures, all four paths |
+| S11 | Renderer hardening + model routing + cost ledger | done — the ledger has no table yet |
+| S12 | Provenance, documents, audit trail | code complete — **no migration** |
+| S13 | Review notes, sign-off, encryption, retention | code complete — **no migration** |
+| S14 | RERA, approvals, statutory compliance | done |
+| S15 | Report depth and export breadth | done |
+| S16 | Portfolio, rent roll, client view | done |
+| S17 | Firm-scoped retrieval | partial — in-memory corpus, no pgvector |
+| S18 | Webhooks, SSE, quotas | partial — signing real, SSE scripted |
+| S19 | Observability, testing, CI/CD | partial — no Playwright critical path |
+| S20 | Security, confidentiality, retention | done |
+| S21 | Load, cost, closed beta | partial — synthetic harness, no beta cohort |
 
 The unadjusted mean is gone. A valuation now comes from an adjustment grid where
 every comparable carries a written rationale per factor, and the sample is
 refused if it is too small, too old, too far away, or still disagrees after
 adjustment.
 
-Phase 1 is complete. A valuation now rests on an adjustment grid, is refused
-when the evidence does not support it, and is concluded by reconciling three
-approaches rather than by any single number.
+**The gaps that will bite you are in the README's "Known gaps" section.** The one
+to read first: five tables — `deliverables`, `deliverable_versions`,
+`deliverable_sections`, `review_notes`, `audit_events` — are declared on
+`Base.metadata` but no Alembic revision creates them. `alembic upgrade head`
+yields a database where S12's provenance chain and S13's review and sign-off
+cannot run. Their live-DB tests skip without `TEST_DATABASE_URL` and the CI
+database job does not reach them, which is why it survived. `cost_entries`,
+`webhook_deliveries` and `node_runs` have no model at all.
 
-**Two exit proofs are outstanding and cannot be met in code**, both of which ask
-for a person: S7's "an IBBI-registered valuer reviews one full grid and signs it"
-and S9's "a valuer compares the reconciled figure against their own manual
-working". The arithmetic is built and tested; the professional review is not
-something the repository can do to itself.
+**Four exit proofs cannot be met in code**, each of which asks for a person: S7's
+"an IBBI-registered valuer reviews one full grid and signs it", S9's "a valuer
+compares the reconciled figure against their own manual working", S14's RERA
+practitioner review and S15's reporting-checklist review. The arithmetic is built
+and tested; the professional review is not something the repository can do to
+itself.

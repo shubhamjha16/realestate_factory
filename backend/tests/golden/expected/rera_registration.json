@@ -1,0 +1,35 @@
+{
+  "doc_type": "rera_registration",
+  "parsed_format": "empty",
+  "parsed_record_count": 0,
+  "computed": {
+    "type": "empty"
+  },
+  "section_sequence": [
+    {
+      "heading": "Promoter Particulars",
+      "type": "standard_clause"
+    },
+    {
+      "heading": "Project Particulars",
+      "type": "standard_clause"
+    },
+    {
+      "heading": "Sanctioned Plan and Approvals",
+      "type": "standard_clause"
+    },
+    {
+      "heading": "Declaration and Undertaking",
+      "type": "standard_clause"
+    }
+  ],
+  "clause_count": 4,
+  "document_figures": [
+    "400066"
+  ],
+  "document_line_count": 12,
+  "document_text_sha256": "5d2d113f592d47b917df463c390ac391619c46b5aee6308c18450f66d5d6f7b5",
+  "doc_filename": "golden-rera-reg-001_rera_registration.docx",
+  "generation_errors": null,
+  "llm_call_count": 6
+}

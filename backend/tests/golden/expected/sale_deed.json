@@ -1,0 +1,72 @@
+{
+  "doc_type": "sale_deed",
+  "parsed_format": "empty",
+  "parsed_record_count": 0,
+  "computed": {
+    "type": "empty"
+  },
+  "section_sequence": [
+    {
+      "heading": "Parties",
+      "type": "numbered_clause"
+    },
+    {
+      "heading": "Recitals",
+      "type": "numbered_clause"
+    },
+    {
+      "heading": "Consideration",
+      "type": "numbered_clause"
+    },
+    {
+      "heading": "Schedule of Property",
+      "type": "numbered_clause"
+    },
+    {
+      "heading": "Representations and Warranties",
+      "type": "numbered_clause"
+    },
+    {
+      "heading": "Covenants for Title",
+      "type": "numbered_clause"
+    },
+    {
+      "heading": "Delivery of Possession",
+      "type": "numbered_clause"
+    },
+    {
+      "heading": "Stamp Duty and Registration",
+      "type": "numbered_clause"
+    },
+    {
+      "heading": "Execution",
+      "type": "numbered_clause"
+    }
+  ],
+  "clause_count": 9,
+  "document_figures": [
+    "1882,",
+    "1908",
+    "1882,",
+    "1908",
+    "1882,",
+    "1908",
+    "1882,",
+    "1908",
+    "1882,",
+    "1908",
+    "1882,",
+    "1908",
+    "1882,",
+    "1908",
+    "1882,",
+    "1908",
+    "1882,",
+    "1908"
+  ],
+  "document_line_count": 22,
+  "document_text_sha256": "3f2bcd154a0ccd749d27a1eef35319d768c238cfd3b6468a93d5af1359e5c786",
+  "doc_filename": "golden-sale-001_sale_deed.docx",
+  "generation_errors": null,
+  "llm_call_count": 3
+}

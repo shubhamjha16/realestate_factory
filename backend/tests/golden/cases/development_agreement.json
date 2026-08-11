@@ -1,0 +1,26 @@
+{
+  "job_id": "golden-dev-001",
+  "job_type": "development_agreement",
+  "instructions": "Draft a development_agreement for joint land development\nClient: Phoenix Estates as developer and Local Land Owners Association\nProperty: Survey No 102, Hadapsar, Pune, Maharashtra 411028\nproperty type: land parcel\nPurpose: joint development agreement share ratio 40 percent land owner 60 percent developer",
+  "property_data": "",
+  "property_id": "prop-golden-dev-001",
+  "evidence": {
+    "property_id": "prop-golden-dev-001",
+    "document_kinds": [
+      "title_deed",
+      "mutation"
+    ],
+    "title_chain_length": 2,
+    "title_chain_has_gap": false,
+    "encumbrance_count": 0,
+    "subsisting_encumbrances": 0,
+    "approvals": [
+      "layout"
+    ],
+    "document_ids_by_kind": {
+      "title_deed": [
+        "doc-td-dev"
+      ]
+    }
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "doc_type": "portfolio_report",
+  "parsed_format": "portfolio",
+  "parsed_record_count": 4,
+  "computed": {
+    "type": "portfolio",
+    "total_properties": 4,
+    "total_portfolio_value": "1975000000.00",
+    "total_cost": "0.00",
+    "total_equity": "1475000000.00",
+    "total_loan_outstanding": "500000000.00",
+    "annual_rental_income": "200100000.00",
+    "portfolio_yield_pct": "10.1316",
+    "appreciation_pct": "0",
+    "by_type": {
+      "commercial office": {
+        "count": 3,
+        "value": "1495000000.00"
+      },
+      "industrial warehouse": {
+        "count": 1,
+        "value": "480000000.00"
+      }
+    },
+    "properties": [
+      {
+        "property_id": null,
+        "property_name": "Prestige Tech Park Unit A",
+        "property_type": "commercial office",
+        "locality": null,
+        "area": "45000",
+        "area_unit": "sqft",
+        "current_value": "450000000",
+        "purchase_price": 0,
+        "monthly_rent": "4050000",
+        "loan_outstanding": "120000000",
+        "occupancy": null,
+        "_row": 2
+      },
+      {
+        "property_id": null,
+        "property_name": "Cyber City Tower 4",
+        "property_type": "commercial office",
+        "locality": null,
+        "area": "60000",
+        "area_unit": "sqft",
+        "current_value": "660000000",
+        "purchase_price": 0,
+        "monthly_rent": "5700000",
+        "loan_outstanding": "180000000",
+        "occupancy": null,
+        "_row": 3
+      },
+      {
+        "property_id": null,
+        "property_name": "Mindspace Malad Unit 12",
+        "property_type": "commercial office",
+        "locality": null,
+        "area": "35000",
+        "area_unit": "sqft",
+        "current_value": "385000000",
+        "purchase_price": 0,
+        "monthly_rent": "3325000",
+        "loan_outstanding": "90000000",
+        "occupancy": null,
+        "_row": 4
+      },
+      {
+        "property_id": null,
+        "property_name": "Commerzone Yerwada",
+        "property_type": "industrial warehouse",
+        "locality": null,
+        "area": "80000",
+        "area_unit": "sqft",
+        "current_value": "480000000",
+        "purchase_price": 0,
+        "monthly_rent": "3600000",
+        "loan_outstanding": "110000000",
+        "occupancy": null,
+        "_row": 5
+      }
+    ]
+  },
+  "section_sequence": [
+    {
+      "heading": "Portfolio Summary",
+      "type": "summary_table"
+    },
+    {
+      "heading": "Property-wise Breakdown",
+      "type": "unit_table"
+    }
+  ],
+  "clause_count": 2,
+  "document_figures": [
+    "5",
+    "4",
+    "1,97,50,00,000.00",
+    "0.00",
+    "1,47,50,00,000.00",
+    "50,00,00,000.00",
+    "20,01,00,000.00",
+    "10.1316",
+    "0",
+    "0",
+    "45,00,00,000.00",
+    "40,50,000.00",
+    "12,00,00,000.00",
+    "4",
+    "0",
+    "66,00,00,000.00",
+    "57,00,000.00",
+    "18,00,00,000.00",
+    "12",
+    "0",
+    "38,50,00,000.00",
+    "33,25,000.00",
+    "9,00,00,000.00",
+    "0",
+    "48,00,00,000.00",
+    "36,00,000.00",
+    "11,00,00,000.00"
+  ],
+  "document_line_count": 20,
+  "document_text_sha256": "aa2cbfe48282d5c33a1faaf93a4a699312a071733eee0862f2fd9d5ccfc23993",
+  "doc_filename": "golden-port-001_portfolio_report.docx",
+  "generation_errors": null,
+  "llm_call_count": 2
+}

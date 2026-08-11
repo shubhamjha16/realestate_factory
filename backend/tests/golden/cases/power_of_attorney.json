@@ -1,0 +1,25 @@
+{
+  "job_id": "golden-poa-001",
+  "job_type": "power_of_attorney",
+  "instructions": "Draft a power_of_attorney for property management and transaction execution\nClient: NRI Property Owner as principal and Local Representative as attorney\nProperty: Apartment 1402, World One Towers, Lower Parel, Mumbai, Maharashtra\nproperty type: residential apartment\nPurpose: general power of attorney for leasing and maintenance",
+  "property_data": "",
+  "property_id": "prop-golden-poa-001",
+  "evidence": {
+    "property_id": "prop-golden-poa-001",
+    "document_kinds": [
+      "title_deed"
+    ],
+    "title_chain_length": 1,
+    "title_chain_has_gap": false,
+    "encumbrance_count": 0,
+    "subsisting_encumbrances": 0,
+    "approvals": [
+      "oc"
+    ],
+    "document_ids_by_kind": {
+      "title_deed": [
+        "doc-td-poa"
+      ]
+    }
+  }
+}

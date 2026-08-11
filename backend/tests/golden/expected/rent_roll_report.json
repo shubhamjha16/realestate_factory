@@ -273,8 +273,8 @@
     "7,77,000.00",
     "3,88,500.00"
   ],
-  "document_line_count": 30,
-  "document_text_sha256": "af3e666d5bb7fb08399e2f173bdc60fe49bdbf8d6b43bc5f599860e08cdb6f2a",
+  "document_line_count": 31,
+  "document_text_sha256": "433b9bc79b799accc41daa21d02bac4d8fe5b1ef481e6445ab10332bcc226799",
   "doc_filename": "golden-rentroll-001_rent_roll_report.docx",
   "generation_errors": null,
   "llm_call_count": 2

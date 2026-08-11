@@ -1,0 +1,43 @@
+{
+  "doc_type": "construction_disbursement_report",
+  "parsed_format": "unparseable",
+  "parsed_record_count": 0,
+  "computed": {
+    "type": "empty"
+  },
+  "section_sequence": [
+    {
+      "heading": "Executive Summary",
+      "type": "executive_summary"
+    },
+    {
+      "heading": "Project Overview",
+      "type": "property_description"
+    },
+    {
+      "heading": "Stage-wise Progress",
+      "type": "construction_stage"
+    },
+    {
+      "heading": "Disbursement Eligibility",
+      "type": "construction_stage"
+    },
+    {
+      "heading": "Outstanding Tranches",
+      "type": "construction_stage"
+    },
+    {
+      "heading": "Recommendations",
+      "type": "recommendations"
+    }
+  ],
+  "clause_count": 6,
+  "document_figures": [
+    "78,"
+  ],
+  "document_line_count": 16,
+  "document_text_sha256": "b591fd390699928367bdb861226d48b13f307dc04ce52349e71e0971c8139ff5",
+  "doc_filename": "golden-cd-001_construction_disbursement_report.docx",
+  "generation_errors": null,
+  "llm_call_count": 11
+}

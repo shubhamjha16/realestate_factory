@@ -20,6 +20,7 @@ field that reaches it.
 
 from __future__ import annotations
 
+from app.services.graph.state import REState
 from app.utils.logger import get_logger
 from app.validators.evidenceValidator import (
     EvidenceBlocked,
@@ -95,6 +96,6 @@ def evidence_check_node(state: dict) -> dict:
     return {"evidence_checked": True, "evidence_missing": None}
 
 
-def evidence_route(state: dict) -> str:
+def evidence_route(state: REState) -> str:
     """`blocked` ends the graph. There is deliberately no edge around it."""
     return "blocked" if state.get("_blocked") else "continue"
