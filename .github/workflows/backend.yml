@@ -94,6 +94,10 @@ jobs:
     env:
       PYTHONHASHSEED: '0'
       GROQ_API_KEY: ci-no-live-calls
+      # Alembic reads DATABASE_URL through envConfig; pytest reads
+      # TEST_DATABASE_URL. Both point at the service container, whose port is
+      # 5432 here — 5433 is only the local compose mapping.
+      DATABASE_URL: postgresql+asyncpg://realestate:realestate@localhost:5432/realestate_test
       TEST_DATABASE_URL: postgresql+asyncpg://realestate:realestate@localhost:5432/realestate_test
     steps:
       - uses: actions/checkout@v4
