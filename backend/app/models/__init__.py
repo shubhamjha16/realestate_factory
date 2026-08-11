@@ -9,6 +9,11 @@ list in the same commit that creates it.
 
 from app.models.base import Area, Money, Percent
 from app.models.client import CLIENT_KINDS, Client
+from app.models.comparable import (
+    ADJUSTMENT_FACTORS,
+    Comparable,
+    ComparableAdjustment,
+)
 from app.models.firm import Firm
 from app.models.job import JOB_STATUSES, TERMINAL_STATUSES, Job
 from app.models.mandate import (
@@ -28,6 +33,9 @@ __all__ = [
     "Firm",
     "Client",
     "CLIENT_KINDS",
+    "Comparable",
+    "ComparableAdjustment",
+    "ADJUSTMENT_FACTORS",
     "Mandate",
     "MANDATE_KINDS",
     "MANDATE_PURPOSES",

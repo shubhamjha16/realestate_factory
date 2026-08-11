@@ -18,7 +18,8 @@
     "react-dom": "^19.0.0",
     "react-router-dom": "^6.26.0",
     "zustand": "^4.5.4",
-    "@realestate-factory/api-types": "0.0.0"
+    "@realestate-factory/api-types": "0.0.0",
+    "@realestate-factory/units": "0.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { compareMoney, formatLakhCrore, formatMoney } from '@/utils/money';
-import { AmbiguousUnitError, convertArea, isAmbiguousUnit } from '@/utils/area';
+import {
+  AmbiguousUnitError,
+  UnverifiedFactorError,
+  convertArea,
+  isStateDependent,
+  sqftPerUnit,
+} from '@/utils/area';
 import { redactOwnerName, redactSurveyNo, scrubForTelemetry } from '@/utils/redactDisplay';
 
 describe('money', () => {
@@ -29,15 +35,39 @@ describe('money', () => {
 });
 
 describe('area', () => {
-  it('converts through a single shared factor table', () => {
+  it('converts through the same table the engine reads', () => {
     expect(convertArea(1, 'acre', 'sqft')).toBe(43560);
     expect(convertArea(40, 'guntha', 'acre')).toBeCloseTo(1, 10);
     expect(convertArea(1, 'sqm', 'sqft')).toBeCloseTo(10.7639104167, 8);
+    expect(convertArea(160, 'marla', 'acre')).toBeCloseTo(1, 10);
+  });
+
+  it('agrees with backend/app/utils/geo.py, factor for factor', () => {
+    // Both read packages/units/units.json. These are the values asserted on the
+    // Python side in tests/test_money_and_units.py.
+    expect(sqftPerUnit('sqft')).toBe(1);
+    expect(sqftPerUnit('sqyd')).toBe(9);
+    expect(sqftPerUnit('acre')).toBe(43560);
+    expect(sqftPerUnit('guntha')).toBe(1089);
+    expect(sqftPerUnit('cent')).toBe(435.6);
+    expect(sqftPerUnit('kanal')).toBe(5445);
+    expect(sqftPerUnit('sqm')).toBe(10.763910416709722);
   });
 
   it('refuses a unit that has no single factor rather than guessing', () => {
-    expect(isAmbiguousUnit('bigha')).toBe(true);
+    expect(isStateDependent('bigha')).toBe(true);
     expect(() => convertArea(1, 'bigha', 'sqft')).toThrow(AmbiguousUnitError);
+  });
+
+  it('refuses an unverified factor unless the caller opts in', () => {
+    expect(() => sqftPerUnit('bigha', { state: 'UP' })).toThrow(UnverifiedFactorError);
+    expect(sqftPerUnit('bigha', { state: 'UP', allowUnverified: true })).toBe(27000);
+  });
+
+  it('shows how far apart two states are, which is why the state is required', () => {
+    const up = sqftPerUnit('bigha', { state: 'UP', allowUnverified: true });
+    const wb = sqftPerUnit('bigha', { state: 'WB', allowUnverified: true });
+    expect((up - wb) / wb).toBeGreaterThan(0.87);
   });
 
   it('rejects an unknown unit', () => {

@@ -49,7 +49,7 @@ drift fails. See `backend/tests/golden/README.md`.
 
 ## Where this is
 
-**S5 of 21 is complete — Phase 0, the foundation, is done.**
+**S7 of 21 is complete — Phase 0 and the core of Phase 1 are done.**
 
 - **S1** — the monorepo split, typed configuration, and the golden harness that
   proves the split changed nothing.
@@ -71,10 +71,31 @@ drift fails. See `backend/tests/golden/README.md`.
   the build if any repository function is callable without a firm scope. A
   cross-firm read answers 404, not 403.
 
-**Phase 1 is next, and it is the product.** Today `analyse_comparables` takes a
-trimmed mean of raw price-per-sqft and calls it a value conclusion. An unadjusted
-mean is not a valuation, and S6 (Decimal, units, parser hardening) and S7 (the
-comparable adjustment grid) are what make the figure defensible.
+- **S6** — every figure in `services/valuation/` is an exact `Decimal`. A
+  200-property portfolio totals identically whether summed per property or in
+  aggregate. Area conversion comes from one shared table both apps read, and a
+  unit whose factor varies by state refuses to convert without one. The parser
+  rejects rows loudly, naming the row and the field, and parsed + rejected +
+  duplicate always equals the input row count.
+- **S7** — the comparable adjustment grid. Each comparable is adjusted for time,
+  location, tenure, size, age, floor, frontage, view, condition and distress, in
+  a fixed compounding order, each with a **written rationale the schema refuses
+  to hold without**. The raw trimmed mean survives only as a pre-adjustment
+  sanity statistic.
+
+On the golden set's eight comparables, the change is not cosmetic:
+
+| | rate | value on 1,450 sq ft |
+|---|---|---|
+| trimmed mean of raw rates (before) | ₹7,499.59 | ₹1,08,74,405 |
+| mean of adjusted rates (after) | ₹7,779.07 | ₹1,12,79,649 |
+
+The raw rates disagreed by 25.3%; after adjustment they agree within 3.1%. That
+narrowing is the evidence the grid is doing defensible work, and it is what a
+reviewer reads.
+
+**S8 is next: the evidence gate.** Until it lands, a report can still assert a
+fact about title that no document supports.
 
 The plan, including what is structurally wrong today and the order it gets
 fixed, is in `REALESTATE_FACTORY_SPRINTS.md`. `CLAUDE.md` is how to work in the

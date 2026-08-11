@@ -1,0 +1,12 @@
+{
+  "name": "@realestate-factory/units",
+  "private": true,
+  "version": "0.0.0",
+  "description": "The single source of area conversion factors, read by both apps.",
+  "files": [
+    "units.json"
+  ],
+  "exports": {
+    "./units.json": "./units.json"
+  }
+}

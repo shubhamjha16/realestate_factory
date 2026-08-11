@@ -1,5 +1,5 @@
 export { formatMoney, formatLakhCrore, formatPercent } from './money';
-export { formatArea } from './area';
+export { formatArea, unitLabel } from './area';
 
 export function formatDate(value: string | null | undefined): string {
   if (!value) return '—';

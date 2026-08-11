@@ -1,0 +1,136 @@
+{
+  "$comment": [
+    "THE single source of area conversion factors. Read by backend/app/utils/geo.py",
+    "and by frontend/src/utils/area.ts. Neither may hold a factor of its own: a",
+    "console that converts square metres differently from the engine produces a",
+    "report whose area and rate contradict its total.",
+    "",
+    "Every factor is square feet per one unit, as an exact decimal string. Strings,",
+    "not numbers, because JSON numbers are doubles and this table feeds Decimal",
+    "arithmetic on figures that run to crores.",
+    "",
+    "STATE-DEPENDENT UNITS ARE NOT SEEDED AS VERIFIED. A bigha is not one area: it",
+    "differs by state and, within a state, by district, and the values below are the",
+    "commonly cited ones rather than a notified schedule. Each carries `verified:",
+    "false` and the engine refuses to use an unverified factor unless the caller",
+    "opts in explicitly. Verifying them against the notified schedules is §11.2 of",
+    "the sprint plan — a standing cost with an owner and a review cadence, still",
+    "unassigned."
+  ],
+  "version": "1.0.0",
+  "base_unit": "sqft",
+
+  "universal": {
+    "sqft": {
+      "sqft_per_unit": "1",
+      "label": "sq ft",
+      "verified": true,
+      "source": "definition"
+    },
+    "sqm": {
+      "sqft_per_unit": "10.763910416709722",
+      "label": "sq m",
+      "verified": true,
+      "source": "1 m = 3.280839895013123 ft exactly (1 in = 25.4 mm), squared"
+    },
+    "sqyd": {
+      "sqft_per_unit": "9",
+      "label": "sq yd",
+      "verified": true,
+      "source": "1 yd = 3 ft exactly"
+    },
+    "acre": {
+      "sqft_per_unit": "43560",
+      "label": "acre",
+      "verified": true,
+      "source": "definition: 1 acre = 43,560 sq ft"
+    },
+    "hectare": {
+      "sqft_per_unit": "107639.10416709722",
+      "label": "hectare",
+      "verified": true,
+      "source": "10,000 sq m"
+    },
+    "are": {
+      "sqft_per_unit": "1076.3910416709722",
+      "label": "are",
+      "verified": true,
+      "source": "100 sq m"
+    },
+    "guntha": {
+      "sqft_per_unit": "1089",
+      "label": "guntha",
+      "verified": true,
+      "source": "1/40 acre — uniform wherever used (MH, KA, TG)"
+    },
+    "cent": {
+      "sqft_per_unit": "435.6",
+      "label": "cent",
+      "verified": true,
+      "source": "1/100 acre (TN, KL, KA)"
+    },
+    "ground": {
+      "sqft_per_unit": "2400",
+      "label": "ground",
+      "verified": true,
+      "source": "2,400 sq ft (TN)"
+    },
+    "kanal": {
+      "sqft_per_unit": "5445",
+      "label": "kanal",
+      "verified": true,
+      "source": "1/8 acre (HR, PB, J&K)"
+    },
+    "marla": {
+      "sqft_per_unit": "272.25",
+      "label": "marla",
+      "verified": true,
+      "source": "1/160 acre (HR, PB)"
+    }
+  },
+
+  "state_dependent": {
+    "bigha": {
+      "label": "bigha",
+      "note": "Varies by state and by district. Never resolve without a jurisdiction.",
+      "by_state": {
+        "UP": { "sqft_per_unit": "27000", "verified": false, "source": "commonly cited pucca bigha; VERIFY against the state's notified schedule" },
+        "HR": { "sqft_per_unit": "27225", "verified": false, "source": "commonly cited (3,025 sq yd); VERIFY" },
+        "PB": { "sqft_per_unit": "9070", "verified": false, "source": "commonly cited kachha bigha; VERIFY — pucca differs" },
+        "RJ": { "sqft_per_unit": "27225", "verified": false, "source": "commonly cited pucca bigha (kachha ≈ 17,424); VERIFY" },
+        "WB": { "sqft_per_unit": "14400", "verified": false, "source": "commonly cited (1,600 sq yd); VERIFY" },
+        "BR": { "sqft_per_unit": "27220", "verified": false, "source": "commonly cited; VERIFY" },
+        "MP": { "sqft_per_unit": "12000", "verified": false, "source": "commonly cited; VERIFY" },
+        "GJ": { "sqft_per_unit": "17427", "verified": false, "source": "commonly cited (vigha); VERIFY" },
+        "AS": { "sqft_per_unit": "14400", "verified": false, "source": "commonly cited; VERIFY" },
+        "HP": { "sqft_per_unit": "8712", "verified": false, "source": "commonly cited; VERIFY" },
+        "UK": { "sqft_per_unit": "6804", "verified": false, "source": "commonly cited; VERIFY" },
+        "DL": { "sqft_per_unit": "27225", "verified": false, "source": "commonly cited; VERIFY" }
+      }
+    },
+    "biswa": {
+      "label": "biswa",
+      "note": "A fraction of a bigha, and the fraction itself varies.",
+      "by_state": {
+        "UP": { "sqft_per_unit": "1350", "verified": false, "source": "1/20 of a 27,000 sq ft bigha; VERIFY" },
+        "HR": { "sqft_per_unit": "1361.25", "verified": false, "source": "1/20 of a 27,225 sq ft bigha; VERIFY" },
+        "RJ": { "sqft_per_unit": "1361.25", "verified": false, "source": "1/20 of a 27,225 sq ft bigha; VERIFY" },
+        "DL": { "sqft_per_unit": "1361.25", "verified": false, "source": "1/20 of a 27,225 sq ft bigha; VERIFY" }
+      }
+    },
+    "katha": {
+      "label": "katha",
+      "by_state": {
+        "WB": { "sqft_per_unit": "720", "verified": false, "source": "1/20 of a 14,400 sq ft bigha; VERIFY" },
+        "BR": { "sqft_per_unit": "1361", "verified": false, "source": "1/20 of a 27,220 sq ft bigha; VERIFY" },
+        "AS": { "sqft_per_unit": "2880", "verified": false, "source": "1/5 of a 14,400 sq ft bigha; VERIFY" }
+      }
+    },
+    "vigha": {
+      "label": "vigha",
+      "by_state": {
+        "GJ": { "sqft_per_unit": "17427", "verified": false, "source": "commonly cited; VERIFY" }
+      }
+    }
+  }
+}

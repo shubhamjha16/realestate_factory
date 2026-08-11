@@ -8,6 +8,7 @@ RE Graph — Real Estate Factory
 """
 
 import json
+from decimal import Decimal
 from typing import TypedDict, Optional, List
 from langgraph.graph import StateGraph, END
 from groq import Groq
@@ -15,6 +16,8 @@ from groq import Groq
 from app.configs import jobTypes as config
 from app.configs.envConfig import settings
 from app.services.ingest.propertyDataParser import parse_property_data
+from app.services.ingest.result import MalformedInputError, UnrecognisedFormatError
+from app.services.valuation.money import format_inr, try_decimal
 from app.services.valuation.valuationCalculator import compute as val_compute
 
 # ── LLM client ────────────────────────────────────────────────────────────────
@@ -117,12 +120,31 @@ def intake_node(state: REState) -> dict:
 # NODE 2 — property_data_parser_node
 # ══════════════════════════════════════════════════════════════════════════════
 
+_EMPTY_PARSE = {
+    "format": "empty", "records": [], "rejected": [],
+    "counts": {"input": 0, "parsed": 0, "rejected": 0, "duplicate": 0},
+    "metadata": {},
+}
+
+
 def property_data_parser_node(state: REState) -> dict:
     raw = _safe(state, "raw_property_data", "")
     if not raw:
-        return {"parsed_data": {"format": "empty", "records": [], "metadata": {}}}
-    parsed = parse_property_data(raw)
-    return {"parsed_data": parsed}
+        return {"parsed_data": dict(_EMPTY_PARSE)}
+
+    # S6: an unrecognised or malformed payload is an error, not an empty
+    # structure. It is surfaced on the state so the job fails with a reason a
+    # valuer can act on, rather than rendering a report over nothing.
+    try:
+        result = parse_property_data(raw)
+    except (UnrecognisedFormatError, MalformedInputError) as e:
+        unparseable = {**_EMPTY_PARSE, "format": "unparseable", "metadata": {"error": str(e)}}
+        return {
+            "parsed_data": unparseable,
+            "generation_errors": f"property data could not be parsed: {e}",
+        }
+
+    return {"parsed_data": result.to_dict()}
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -134,7 +156,10 @@ def valuation_calculator_node(state: REState) -> dict:
     doc_type = _safe(state, "doc_type", "")
     if not parsed or not parsed.get("records"):
         return {"computed": {"type": "empty"}}
-    computed = val_compute(parsed, doc_type)
+    try:
+        computed = val_compute(parsed, doc_type)
+    except ValueError as e:
+        return {"computed": {"type": "error", "error": str(e)}, "generation_errors": str(e)}
     return {"computed": computed}
 
 
@@ -150,7 +175,7 @@ def research_node(state: REState) -> dict:
     system = "You are a senior real estate consultant. Provide concise reference guidance for drafting the document. 3-4 paragraphs max."
     user   = (
         f"Document type: {doc_type}\nProperty: {prop}\n"
-        f"Computed data summary: {json.dumps({k: v for k, v in computed.items() if k != 'unit_details' and k != 'stage_details' and k != 'properties'}, indent=2)}\n"
+        f"Computed data summary: {json.dumps({k: v for k, v in computed.items() if k != 'unit_details' and k != 'stage_details' and k != 'properties'}, indent=2, default=str)}\n"
         "Provide: applicable regulations (RERA, Transfer of Property Act, Registration Act, Stamp Duty), "
         "market context, standard methodologies (Sales Comparison, Income, Cost approach), "
         "due diligence checklist items, and key clauses for the document type."
@@ -200,6 +225,16 @@ def _vision_route(state: REState) -> str:
 # RECONCILIATION PATH — zero LLM
 # ══════════════════════════════════════════════════════════════════════════════
 
+def _money(computed: dict, key: str) -> str:
+    """A computed figure, in rupees with Indian grouping. Never re-derived here."""
+    return format_inr(try_decimal(computed.get(key, "0"), Decimal(0)))
+
+
+def _num(record: dict, key: str) -> str:
+    value = try_decimal(record.get(key, "0"), Decimal(0))
+    return format_inr(value)
+
+
 def rec_renderer_node(state: REState) -> dict:
     """Format computed rent roll / portfolio dict directly into clause_plan. No LLM."""
     computed = _safe(state, "computed", {})
@@ -216,10 +251,10 @@ def rec_renderer_node(state: REState) -> dict:
                 f"Occupied: {computed.get('occupied_units',0)} | "
                 f"Vacant: {computed.get('vacant_units',0)}\n"
                 f"Vacancy Rate: {computed.get('vacancy_rate_pct',0)}%\n"
-                f"Total Monthly Rent: ₹{computed.get('total_monthly_rent',0):,.2f}\n"
-                f"Total Annual Rent: ₹{computed.get('total_annual_rent',0):,.2f}\n"
-                f"Total Security Deposit: ₹{computed.get('total_security_deposit',0):,.2f}\n"
-                f"Total Overdue: ₹{computed.get('total_overdue',0):,.2f}"},
+                f"Total Monthly Rent: {_money(computed, 'total_monthly_rent')}\n"
+                f"Total Annual Rent: {_money(computed, 'total_annual_rent')}\n"
+                f"Total Security Deposit: {_money(computed, 'total_security_deposit')}\n"
+                f"Total Overdue: {_money(computed, 'total_overdue')}"},
             {"heading": "Unit-wise Details", "type": "unit_table",
              "content": _format_units(computed.get("unit_details", []))},
             {"heading": "Upcoming Escalations", "type": "standard_clause",
@@ -230,11 +265,11 @@ def rec_renderer_node(state: REState) -> dict:
             {"heading": "Portfolio Summary", "type": "summary_table", "content":
                 f"Client: {client}\n"
                 f"Total Properties: {computed.get('total_properties',0)}\n"
-                f"Total Portfolio Value: ₹{computed.get('total_portfolio_value',0):,.2f}\n"
-                f"Total Cost: ₹{computed.get('total_cost',0):,.2f}\n"
-                f"Total Equity: ₹{computed.get('total_equity',0):,.2f}\n"
-                f"Loan Outstanding: ₹{computed.get('total_loan_outstanding',0):,.2f}\n"
-                f"Annual Rental Income: ₹{computed.get('annual_rental_income',0):,.2f}\n"
+                f"Total Portfolio Value: {_money(computed, 'total_portfolio_value')}\n"
+                f"Total Cost: {_money(computed, 'total_cost')}\n"
+                f"Total Equity: {_money(computed, 'total_equity')}\n"
+                f"Loan Outstanding: {_money(computed, 'total_loan_outstanding')}\n"
+                f"Annual Rental Income: {_money(computed, 'annual_rental_income')}\n"
                 f"Portfolio Yield: {computed.get('portfolio_yield_pct',0)}%\n"
                 f"Appreciation: {computed.get('appreciation_pct',0)}%"},
             {"heading": "Property-wise Breakdown", "type": "unit_table",
@@ -242,7 +277,7 @@ def rec_renderer_node(state: REState) -> dict:
         ]
     else:
         clauses = [{"heading": "Report", "type": "standard_clause",
-                    "content": json.dumps(computed, indent=2)}]
+                    "content": json.dumps(computed, indent=2, default=str)}]
 
     return {"clause_plan": clauses}
 
@@ -254,8 +289,8 @@ def _format_units(units):
     for u in units:
         lines.append(
             f"{u.get('unit','')} | {u.get('tenant','')} | "
-            f"{u.get('area_sqft',0)} sqft | ₹{u.get('monthly_rent',0):,.0f} | "
-            f"{u.get('status','')} | ₹{u.get('overdue',0):,.0f}"
+            f"{u.get('area_sqft',0)} sqft | {_num(u, 'monthly_rent')} | "
+            f"{u.get('status','')} | {_num(u, 'overdue')}"
         )
     return "\n".join(lines)
 
@@ -267,7 +302,7 @@ def _format_escalations(esc):
     for e in esc:
         lines.append(
             f"{e.get('unit','')} | {e.get('tenant','')} | "
-            f"₹{e.get('current_rent',0):,.0f} | ₹{e.get('new_rent',0):,.0f} | "
+            f"{_num(e, 'current_rent')} | {_num(e, 'new_rent')} | "
             f"{e.get('escalation_pct',0)}%"
         )
     return "\n".join(lines)
@@ -280,8 +315,8 @@ def _format_portfolio(props):
     for p in props:
         lines.append(
             f"{p.get('property_name','')} | {p.get('property_type','')} | "
-            f"{p.get('area_sqft',0)} sqft | ₹{p.get('current_value',0):,.0f} | "
-            f"₹{p.get('monthly_rent',0):,.0f} | ₹{p.get('loan_outstanding',0):,.0f}"
+            f"{p.get('area_sqft',0)} sqft | {_num(p, 'current_value')} | "
+            f"{_num(p, 'monthly_rent')} | {_num(p, 'loan_outstanding')}"
         )
     return "\n".join(lines)
 
@@ -303,7 +338,7 @@ def valuation_structure_node(state: REState) -> dict:
     )
     user = (
         f"Document: {doc_type}\nClient: {client}\nProperty: {prop}\n"
-        f"Computed data: {json.dumps({k: v for k, v in computed.items() if 'detail' not in k and 'properties' not in k}, indent=2)}\n"
+        f"Computed data: {json.dumps({k: v for k, v in computed.items() if 'detail' not in k and 'properties' not in k}, indent=2, default=str)}\n"
         f"Research:\n{research}\n\n"
         "Return: {\"title\": str, \"sections\": [{\"heading\": str, \"type\": str, \"notes\": str}]} "
         "For valuation_report include: Executive Summary, Property Description, "
@@ -351,7 +386,7 @@ def valuation_critic_node(state: REState) -> dict:
 
     def _review(soul):
         raw = _chat([{"role": "system", "content": soul},
-                     {"role": "user",   "content": f"Plan:\n{json.dumps(plan, indent=2)}\n\nContext:\n{research}"}],
+                     {"role": "user",   "content": f"Plan:\n{json.dumps(plan, indent=2, default=str)}\n\nContext:\n{research}"}],
                     max_tokens=600, json_mode=True)
         try:
             return json.loads(raw)
@@ -391,7 +426,7 @@ def section_drafter_node(state: REState) -> dict:
     # Attach computed data for relevant sections
     data_ctx = ""
     if sec_type in ("valuation_approach", "market_analysis"):
-        data_ctx = f"Computed data:\n{json.dumps({k: v for k, v in computed.items() if 'detail' not in k and 'properties' not in k}, indent=2)}\n"
+        data_ctx = f"Computed data:\n{json.dumps({k: v for k, v in computed.items() if 'detail' not in k and 'properties' not in k}, indent=2, default=str)}\n"
 
     system = (
         "You are a real estate document writer. "
@@ -473,7 +508,7 @@ def compliance_critic_node(state: REState) -> dict:
 
     def _review(soul):
         raw = _chat([{"role": "system", "content": soul},
-                     {"role": "user",   "content": f"Plan:\n{json.dumps(plan, indent=2)}\n\nContext:\n{research}"}],
+                     {"role": "user",   "content": f"Plan:\n{json.dumps(plan, indent=2, default=str)}\n\nContext:\n{research}"}],
                     max_tokens=600, json_mode=True)
         try:
             return json.loads(raw)
@@ -508,7 +543,7 @@ def compliance_drafter_node(state: REState) -> dict:
         "Return JSON only."
     )
     user = (
-        f"Structure:\n{json.dumps(plan, indent=2)}\n\n"
+        f"Structure:\n{json.dumps(plan, indent=2, default=str)}\n\n"
         f"Client: {client}\nProperty: {prop}\nResearch:\n{research}\n\n"
         "Draft every section fully. Be specific to Indian real estate regulations."
     )
@@ -593,7 +628,7 @@ def healer_node(state: REState) -> dict:
         "Given a render error and the clause plan, return a corrected clause plan as JSON array. "
         "Return JSON only."
     )
-    user = f"Error:\n{error}\n\nClause plan (first 3):\n{json.dumps(clauses[:3], indent=2)}\n\nReturn corrected full clause plan."
+    user = f"Error:\n{error}\n\nClause plan (first 3):\n{json.dumps(clauses[:3], indent=2, default=str)}\n\nReturn corrected full clause plan."
     raw = _chat([{"role": "system", "content": system}, {"role": "user", "content": user}],
                 max_tokens=4000, json_mode=True)
     try:

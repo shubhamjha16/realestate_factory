@@ -104,6 +104,17 @@ terminal one alone.
   the diff goes in the commit.
 - **`services/valuation/` is pure and deterministic.** No LLM call belongs in it,
   now or later.
+- **Money is parsed from strings and never from floats.** `to_decimal` raises on
+  a float rather than laundering imprecision it cannot undo. Round once, at the
+  boundary; intermediate rounding is how a rent roll stops tying to its lines.
+- **`packages/units/units.json` is the only place a conversion factor lives.**
+  Both apps read it. The state-dependent factors (bigha, biswa, katha, vigha) are
+  seeded `verified: false` from commonly cited values and **refuse to be used
+  without an explicit opt-in** — verifying them against notified schedules is
+  §11.2, still unassigned.
+- **The trimmed mean is a sanity statistic, not a conclusion.** It survives as
+  `trimmed_mean_rate_sanity_only`. Nothing in the codebase returns a key a caller
+  could mistake for a value conclusion.
 - **`Base` lives in `app/models/base.py`, not `configs/dbConfig.py`.** Reading the
   schema — autogenerate, the money-column guard — must not require a database URL
   or a provider key.
@@ -147,10 +158,15 @@ terminal one alone.
 | S3 | Layered HTTP + generated API types | done |
 | S4 | Real queue: arq + Redis | done |
 | S5 | Auth, firms, mandates, tenancy | done |
-| S6 | Decimal migration, units, parser hardening | next — Phase 1 begins |
+| S6 | Decimal migration, units, parser hardening | done |
+| S7 | The comparable adjustment grid | done |
+| S8 | The evidence gate | next |
 
-Phase 0 is complete: the foundation and tenancy are in place. **Phase 1 is where
-the product is** — nothing in Phase 2 matters if the value is not defensible, and
-today `analyse_comparables` still takes a trimmed mean of raw price-per-sqft and
-calls it a value conclusion. That is the single biggest professional exposure in
-this repository and S6/S7 are what close it.
+The unadjusted mean is gone. A valuation now comes from an adjustment grid where
+every comparable carries a written rationale per factor, and the sample is
+refused if it is too small, too old, too far away, or still disagrees after
+adjustment.
+
+**One S7 exit proof is outstanding and cannot be met in code:** "an
+IBBI-registered valuer reviews one full grid and signs it." The grid is built and
+the arithmetic is tested; the professional review is a person's job.

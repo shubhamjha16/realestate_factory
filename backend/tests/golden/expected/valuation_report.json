@@ -5,11 +5,15 @@
   "computed": {
     "type": "comparables",
     "comparable_count": 8,
-    "avg_rate_per_sqft": 7512.19,
-    "trimmed_avg_rate": 7499.59,
-    "min_rate_per_sqft": 6600.0,
-    "max_rate_per_sqft": 8500.0,
-    "suggested_rate": 7499.59
+    "rates_derived": 8,
+    "count": 8,
+    "mean_rate": "7512.1924",
+    "trimmed_mean_rate_sanity_only": "7499.5899",
+    "min_rate": "6600.0000",
+    "max_rate": "8500.0000",
+    "spread_pct": "25.2922",
+    "requires_adjustment_grid": true,
+    "note": "These are unadjusted statistics. A value conclusion requires the adjustment grid — see services/valuation/adjust.py."
   },
   "section_sequence": [
     {

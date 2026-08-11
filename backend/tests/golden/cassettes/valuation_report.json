@@ -54,5 +54,37 @@
   "78ab112a2cebd29291447aa75c66c6ac": {
     "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
     "response": "{\"heading\": \"Conclusion & Certificate\", \"content\": \"This section sets out the conclusion & certificate for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"conclusion\"}"
+  },
+  "f8e217a866cc14fd21272e6a823108ad": {
+    "system_excerpt": "You are a senior real estate consultant. Provide concise reference guidance for drafting the document. 3-4 paragraphs max.",
+    "response": "Applicable framework: the Real Estate (Regulation and Development) Act 2016, the Transfer of Property Act 1882, the Registration Act 1908 and the relevant State Stamp Act govern the instrument and its registration.\n\nMarket context: the locality is assessed on the evidence placed on record. No market figure is stated here; every figure in the deliverable is computed and carried through from the valuation lines.\n\nMethodology: the sales comparison, income capitalisation and cost approaches are each considered, and the conclusion is reconciled with a stated rationale per weight.\n\nDue diligence: title chain, encumbrance certificate, mutation records, approved plans, commencement and occupancy certificates and tax receipts are to be inspected."
+  },
+  "da43ca5eebf716f3034cd6b98931478a": {
+    "system_excerpt": "You are a real estate report architect. Build a structured report outline as a JSON object. Return JSON only.",
+    "response": "{\"title\": \"Valuation Report\", \"sections\": [{\"heading\": \"Executive Summary\", \"type\": \"executive_summary\", \"notes\": \"Address executive summary on the evidence of record.\"}, {\"heading\": \"Property Description\", \"type\": \"property_description\", \"notes\": \"Address property description on the evidence of record.\"}, {\"heading\": \"Location Analysis\", \"type\": \"market_analysis\", \"notes\": \"Address location analysis on the evidence of record.\"}, {\"heading\": \"Market Analysis\", \"type\": \"market_analysis\", \"notes\": \"Address market analysis on the evidence of record.\"}, {\"heading\": \"Sales Comparison Approach\", \"type\": \"valuation_approach\", \"notes\": \"Address sales comparison approach on the evidence of record.\"}, {\"heading\": \"Income Approach\", \"type\": \"valuation_approach\", \"notes\": \"Address income approach on the evidence of record.\"}, {\"heading\": \"Cost Approach\", \"type\": \"valuation_approach\", \"notes\": \"Address cost approach on the evidence of record.\"}, {\"heading\": \"Reconciliation of Value\", \"type\": \"valuation_approach\", \"notes\": \"Address reconciliation of value on the evidence of record.\"}, {\"heading\": \"Conclusion & Certificate\", \"type\": \"conclusion\", \"notes\": \"Address conclusion & certificate on the evidence of record.\"}]}"
+  },
+  "a9315465716ce5ff21a80a560d4967b6": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Location Analysis\", \"content\": \"This section sets out the location analysis for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"market_analysis\"}"
+  },
+  "dc0713459ba19efd38c2f8cb9ac085aa": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Market Analysis\", \"content\": \"This section sets out the market analysis for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"market_analysis\"}"
+  },
+  "65e9973746c04df6efa3e71e4e7ddb2f": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Sales Comparison Approach\", \"content\": \"This section sets out the sales comparison approach for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"valuation_approach\"}"
+  },
+  "1f521188f60dcab08cd5293af11bc6be": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Income Approach\", \"content\": \"This section sets out the income approach for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"valuation_approach\"}"
+  },
+  "2d6479b85a925804e32b2e1d97f9ca29": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Cost Approach\", \"content\": \"This section sets out the cost approach for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"valuation_approach\"}"
+  },
+  "c31cdc040c11bf8275f157d24d3a112d": {
+    "system_excerpt": "You are a real estate document writer. Draft this section in professional language. Return JSON only with keys: heading (str), content (str), type (str).",
+    "response": "{\"heading\": \"Reconciliation of Value\", \"content\": \"This section sets out the reconciliation of value for the subject property. The analysis rests on the documents and data placed on record and is to be read with the assumptions and limiting conditions. Figures stated elsewhere in this report are computed from the schedules annexed and are not restated here.\", \"type\": \"valuation_approach\"}"
   }
 }

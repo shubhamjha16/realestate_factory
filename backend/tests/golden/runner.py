@@ -21,6 +21,8 @@ import os
 import re
 import sys
 import tempfile
+from datetime import date, datetime
+from decimal import Decimal
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -33,6 +35,26 @@ EXPECTED_DIR = HERE / "expected"
 
 # Every number in the rendered document, as written.
 FIGURE_RE = re.compile(r"-?\d[\d,]*(?:\.\d+)?")
+
+
+def _json_safe(value):
+    """
+    Decimal and date render as exact strings.
+
+    Never as floats: the whole point of S6 is that these figures are exact, and
+    a golden file that stored them as doubles would compare 7499.589999999999
+    against 7499.59 and either fail spuriously or, worse, pass by rounding.
+    """
+    if isinstance(value, Decimal):
+        return str(value)
+    if isinstance(value, (date, datetime)):
+        return value.isoformat()
+    raise TypeError(f"{type(value).__name__} is not JSON serialisable")
+
+
+def normalise(observation: dict) -> dict:
+    """Round-trip through the encoder so observed and expected are comparable."""
+    return json.loads(json.dumps(observation, default=_json_safe, ensure_ascii=False))
 
 
 # ── target loading ────────────────────────────────────────────────────────────
@@ -134,7 +156,7 @@ def run_case(case_name: str, target: str, mode: str, output_dir: Path) -> dict:
         raise RuntimeError(f"{case_name}: nothing rendered — {final.get('render_error')}")
     obs = observe(final, doc_path)
     obs["llm_call_count"] = len(tape.calls)
-    return obs
+    return normalise(obs)
 
 
 def main() -> int:
@@ -154,7 +176,7 @@ def main() -> int:
         obs = run_case(name, args.target, args.mode, out_dir / name)
         target_path = (EXPECTED_DIR if args.write_expected else out_dir) / f"{name}.json"
         target_path.parent.mkdir(parents=True, exist_ok=True)
-        target_path.write_text(json.dumps(obs, indent=2, ensure_ascii=False) + "\n")
+        target_path.write_text(json.dumps(obs, indent=2, ensure_ascii=False, default=_json_safe) + "\n")
 
         if args.write_expected:
             print(f"recorded  {name}  ({obs['clause_count']} sections, "
