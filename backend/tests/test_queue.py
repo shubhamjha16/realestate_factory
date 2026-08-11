@@ -152,10 +152,15 @@ async def test_twenty_concurrent_jobs_all_reach_a_terminal_state(db, scope, pool
     statuses = await asyncio.gather(*(drive(j.id) for j in jobs))
     assert statuses == ["completed"] * 20
 
-    for job in jobs:
-        final = await jobRepository.get(db, scope, job.id)
-        assert final is not None, f"job {job.id} was lost"
-        assert final.terminal_at is not None, f"job {job.id} never reached a terminal state"
+    # A fresh session, because the one that created these jobs still holds the
+    # pre-update instances in its identity map — reading through it would assert
+    # against a stale copy rather than the row.
+    async with maker() as verifier:
+        for job in jobs:
+            final = await jobRepository.get(verifier, scope, job.id)
+            assert final is not None, f"job {job.id} was lost"
+            assert final.terminal_at is not None, f"job {job.id} never reached a terminal state"
+            assert final.status == "completed"
 
 
 # ── the same submission twice is one job ──────────────────────────────────────

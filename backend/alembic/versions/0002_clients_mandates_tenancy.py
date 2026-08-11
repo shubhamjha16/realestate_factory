@@ -23,7 +23,7 @@ from collections.abc import Sequence
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
-from alembic import op
+from alembic import context, op
 
 revision: str = "0002_tenancy"
 down_revision: str | None = "0001_initial"
@@ -40,6 +40,14 @@ def _require_no_orphans() -> None:
     deleting them would destroy records this migration has no mandate over. So
     it stops and tells the operator, who is the only one who knows which it is.
     """
+    if context.is_offline_mode():
+        # `--sql` renders DDL against no database. There is nothing to inspect,
+        # and the operator applying the script is the one who must check.
+        print("-- NOTE: firm_id is about to become NOT NULL. Verify first:")
+        print("--   SELECT count(*) FROM jobs WHERE firm_id IS NULL;")
+        print("--   SELECT count(*) FROM properties WHERE firm_id IS NULL;")
+        return
+
     conn = op.get_bind()
     for table in ("jobs", "properties"):
         count = conn.execute(

@@ -175,7 +175,7 @@ async def test_a_cross_firm_read_is_404_over_http_not_403(db, two_firms):
     403 says "this exists, but not for you". For a mandate name or a property
     address that confirmation is the leak.
     """
-    from fastapi.testclient import TestClient
+    import httpx
 
     from app.configs.dbConfig import get_db
     from app.main import create_app
@@ -186,20 +186,24 @@ async def test_a_cross_firm_read_is_404_over_http_not_403(db, two_firms):
     app = create_app()
     app.dependency_overrides[get_db] = lambda: db
     app.dependency_overrides[current_scope] = lambda: a_scope
-    client = TestClient(app)
 
-    for path in (
-        f"/api/v1/jobs/{b['job'].id}",
-        f"/status/{b['job'].id}",
-        f"/api/v1/mandates/{b['mandate'].id}",
-    ):
-        r = client.get(path)
-        assert r.status_code == 404, f"{path} answered {r.status_code}"
-        assert "not found" in r.json()["detail"].lower()
+    # httpx's ASGI transport, not TestClient: TestClient drives the app from its
+    # own event loop, and the session under test belongs to this one.
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://engine") as client:
+        for path in (
+            f"/api/v1/jobs/{b['job'].id}",
+            f"/status/{b['job'].id}",
+            f"/api/v1/mandates/{b['mandate'].id}",
+        ):
+            r = await client.get(path)
+            assert r.status_code == 404, f"{path} answered {r.status_code}"
+            assert "not found" in r.json()["detail"].lower()
 
-    # And a job that does not exist anywhere answers identically, so the two
-    # cases are indistinguishable from outside.
-    assert client.get(f"/api/v1/jobs/{uuid.uuid4()}").status_code == 404
+        # A job that exists nowhere answers identically, so the two cases are
+        # indistinguishable from outside.
+        missing = await client.get(f"/api/v1/jobs/{uuid.uuid4()}")
+        assert missing.status_code == 404
 
 
 # ── roles ─────────────────────────────────────────────────────────────────────
