@@ -26,6 +26,7 @@ from app.models.firm import Firm
 from app.models.mandate import Mandate
 from app.models.property import Property
 from app.models.propertyDocument import PropertyDocument
+from app.models.user import User
 from app.models.valuation import Valuation, ValuationLine
 from app.repositories import auditRepository, deliverableRepository
 from app.services.access.scope import FirmScope
@@ -101,13 +102,25 @@ async def db():
 @pytest_asyncio.fixture
 async def sample_mandate_setup(db):
     firm_id = uuid.uuid4()
-    user_id = uuid.uuid4()
 
     firm = Firm(id=firm_id, name="Vanguard Valuations LLP", plan="pro", seats=5)
     db.add(firm)
     await db.flush()
 
-    scope = FirmScope(firm_id=firm_id, user_id=user_id, role="valuer")
+    # Every audit event is stamped with the acting user, and that is a real
+    # foreign key. An event attributed to a UUID with no user behind it answers
+    # "who exported this" with a row nobody can follow.
+    valuer = User(
+        firm_id=firm_id,
+        email="valuer@vanguardvaluations.in",
+        role="valuer",
+        ibbi_reg_no="IBBI/RV/05/2021/14233",
+        valuer_asset_class="land_and_building",
+    )
+    db.add(valuer)
+    await db.flush()
+
+    scope = FirmScope(firm_id=firm_id, user_id=valuer.id, role="valuer")
 
     # A mandate is an instruction from a client, and `client_id` is NOT NULL.
     # Creating one here rather than nulling the column: an unattributed mandate
@@ -162,9 +175,9 @@ async def sample_mandate_setup(db):
         valuation_date=date(2026, 1, 15),
         basis="market",
         premise="existing_use",
-        concluded_value=Decimal("25000000"),
-        value_range_low=Decimal("24000000"),
-        value_range_high=Decimal("26000000"),
+        concluded_value=Decimal("25000000.00"),
+        value_range_low=Decimal("24000000.00"),
+        value_range_high=Decimal("26000000.00"),
         status="draft",
     )
     db.add(val)
@@ -174,7 +187,7 @@ async def sample_mandate_setup(db):
         valuation_id=val.id,
         ord=1,
         label="Indicated Sales Comparison Value",
-        amount=Decimal("25000000"),
+        amount=Decimal("25000000.00"),
         basis="market",
         source_ref={"comparables_count": 1, "method": "adjusted_sales"},
         comparable_ids=[comp.id],
