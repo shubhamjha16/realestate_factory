@@ -62,13 +62,33 @@ def _redis_settings() -> RedisSettings:
 
 
 @pytest_asyncio.fixture
-async def db():
+async def maker():
+    """
+    A sessionmaker built inside this test's event loop.
+
+    `dbConfig.get_sessionmaker` is `lru_cache`d, and the worker tasks use it. Each
+    test gets its own loop, so a cached engine from an earlier test holds
+    connections attached to a loop that no longer exists. Clearing the cache here
+    is what lets `run_generation` be called directly.
+    """
+    from app.configs import dbConfig
+
     await asyncio.to_thread(_rebuild_schema)
+    dbConfig.get_engine.cache_clear()
+    dbConfig.get_sessionmaker.cache_clear()
+
     engine = create_async_engine(TEST_DATABASE_URL)
-    maker = async_sessionmaker(engine, expire_on_commit=False)
+    session_maker = async_sessionmaker(engine, expire_on_commit=False)
+    yield session_maker
+    await engine.dispose()
+    dbConfig.get_engine.cache_clear()
+    dbConfig.get_sessionmaker.cache_clear()
+
+
+@pytest_asyncio.fixture
+async def db(maker):
     async with maker() as session:
         yield session
-    await engine.dispose()
 
 
 @pytest_asyncio.fixture
@@ -93,21 +113,23 @@ async def pool():
 # ── 20 concurrent jobs, none lost ─────────────────────────────────────────────
 
 
-async def test_twenty_concurrent_jobs_all_reach_a_terminal_state(db, scope, pool):
+async def test_twenty_concurrent_jobs_all_reach_a_terminal_state(db, scope, pool, maker):
     """
     The graph is not run here — that would be twenty live model calls. What is
     under test is the queue and the status machine: every job enqueued is
-    dequeued exactly once and driven to a terminal state, with none lost and none
+    accepted exactly once and driven to a terminal state, with none lost and none
     stuck.
+
+    Each concurrent task opens its own session. A SQLAlchemy `AsyncSession` is
+    not safe to share across concurrent tasks, and each real worker has its own
+    anyway — sharing one here would test something that never happens.
     """
-    jobs = await asyncio.gather(
-        *(
-            jobRepository.create(
-                db, scope, job_type="valuation_report", instructions=f"job {i}"
-            )
-            for i in range(20)
+    jobs = [
+        await jobRepository.create(
+            db, scope, job_type="valuation_report", instructions=f"job {i}"
         )
-    )
+        for i in range(20)
+    ]
     assert len({j.id for j in jobs}) == 20
 
     for job in jobs:
@@ -117,13 +139,15 @@ async def test_twenty_concurrent_jobs_all_reach_a_terminal_state(db, scope, pool
         )
         assert enqueued is not None, f"job {job.id} was not accepted by the queue"
 
-    # Drive them through the status machine the way the worker does.
+    # Drive them through the status machine the way the workers do: concurrently,
+    # each on its own session.
     async def drive(job_id: uuid.UUID) -> str:
-        await jobRepository.set_status(db, job_id, "processing")
-        result = await jobRepository.set_status(
-            db, job_id, "completed", doc_url=f"s3://x/{job_id}.docx"
-        )
-        return result.status
+        async with maker() as own_session:
+            await jobRepository.set_status(own_session, job_id, "processing")
+            result = await jobRepository.set_status(
+                own_session, job_id, "completed", doc_url=f"s3://x/{job_id}.docx"
+            )
+            return result.status
 
     statuses = await asyncio.gather(*(drive(j.id) for j in jobs))
     assert statuses == ["completed"] * 20
@@ -187,7 +211,11 @@ async def test_the_key_is_per_firm_so_two_firms_do_not_collide(db, scope):
 # ── a redelivered job does not run twice ──────────────────────────────────────
 
 
-async def test_a_redelivered_job_that_already_finished_is_not_re_run(db, scope):
+@pytest.mark.skipif(
+    os.environ.get("DATABASE_URL") != TEST_DATABASE_URL,
+    reason="run_generation opens its own session from DATABASE_URL; point it at the test database",
+)
+async def test_a_redelivered_job_that_already_finished_is_not_re_run(db, scope, maker):
     """
     At-least-once delivery is what a queue gives you. The task claims the job
     first and leaves a terminal one alone — which is the S2 guard doing its work
@@ -205,7 +233,11 @@ async def test_a_redelivered_job_that_already_finished_is_not_re_run(db, scope):
     assert unchanged.doc_url == "s3://x/first.docx"
 
 
-async def test_a_job_that_vanished_is_reported_not_crashed(db, scope):
+@pytest.mark.skipif(
+    os.environ.get("DATABASE_URL") != TEST_DATABASE_URL,
+    reason="run_generation opens its own session from DATABASE_URL; point it at the test database",
+)
+async def test_a_job_that_vanished_is_reported_not_crashed(db, scope, maker):
     from app.workers.tasks import run_generation
 
     assert await run_generation({"job_try": 1}, str(uuid.uuid4()), "x", "", "mou") == "missing"

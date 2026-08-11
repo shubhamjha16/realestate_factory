@@ -16,6 +16,12 @@ anyio==4.14.2
     #   langsmith
     #   starlette
     #   watchfiles
+argon2-cffi==25.1.0
+    # via realestate-factory-backend
+argon2-cffi-bindings==25.1.0
+    # via argon2-cffi
+arq==0.28.0
+    # via realestate-factory-backend
 asyncpg==0.31.0
     # via realestate-factory-backend
 boto3==1.43.67
@@ -29,12 +35,16 @@ certifi==2026.7.22
     #   httpcore
     #   httpx
     #   requests
-cffi==2.1.1 ; platform_python_implementation != 'PyPy'
-    # via cryptography
+cffi==2.1.1
+    # via
+    #   argon2-cffi-bindings
+    #   cryptography
 charset-normalizer==3.4.9
     # via requests
 click==8.4.2
-    # via uvicorn
+    # via
+    #   arq
+    #   uvicorn
 colorama==0.4.6 ; sys_platform == 'win32'
     # via
     #   click
@@ -46,8 +56,12 @@ distro==1.9.0
     #   anthropic
     #   groq
     #   langsmith
+dnspython==2.8.0
+    # via email-validator
 docstring-parser==0.18.0
     # via anthropic
+email-validator==2.3.0
+    # via realestate-factory-backend
 fastapi==0.141.1
     # via realestate-factory-backend
 geoalchemy2==0.20.0
@@ -90,6 +104,8 @@ h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
+hiredis==3.4.1
+    # via redis
 httpcore==1.0.9
     # via httpx
 httplib2==0.32.0
@@ -107,6 +123,7 @@ httpx==0.28.1
 idna==3.18
     # via
     #   anyio
+    #   email-validator
     #   httpx
     #   requests
 jiter==0.16.0
@@ -174,7 +191,7 @@ pyasn1==0.6.4
     # via pyasn1-modules
 pyasn1-modules==0.4.2
     # via google-auth
-pycparser==3.0 ; implementation_name != 'PyPy' and platform_python_implementation != 'PyPy'
+pycparser==3.0 ; implementation_name != 'PyPy'
     # via cffi
 pydantic==2.13.4
     # via
@@ -191,6 +208,12 @@ pydantic-core==2.46.4
     # via pydantic
 pydantic-settings==2.15.0
     # via realestate-factory-backend
+pyjwt==2.13.0
+    # via
+    #   realestate-factory-backend
+    #   redis
+pyotp==2.10.0
+    # via realestate-factory-backend
 pyparsing==3.3.2
     # via httplib2
 python-dateutil==2.9.0.post0
@@ -206,6 +229,8 @@ pyyaml==6.0.3
     # via
     #   langchain-core
     #   uvicorn
+redis==5.3.1
+    # via arq
 requests==2.34.2
     # via
     #   google-api-core

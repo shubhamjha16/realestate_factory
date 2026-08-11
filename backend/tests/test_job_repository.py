@@ -24,9 +24,12 @@ import pytest_asyncio
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
+from app.models.firm import Firm
 from app.models.job import Job
-from app.repositories import jobRepository
+from app.repositories import jobRepository, userRepository
 from app.repositories.jobRepository import TerminalJobError
+from app.services.access.scope import FirmScope
+from app.services.authService import scope_for
 
 TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
 
@@ -70,33 +73,50 @@ async def db():
     await engine.dispose()
 
 
-async def test_a_created_job_is_queued_and_not_terminal(db):
-    job = await jobRepository.create(db, job_type="valuation_report", instructions="value it")
+@pytest_asyncio.fixture
+async def scope(db) -> FirmScope:
+    """
+    A partner of a real firm.
+
+    From S5 there is no such thing as an unscoped job: `firm_id` is NOT NULL and
+    every repository read filters on it.
+    """
+    firm = Firm(name="Repository Test Firm")
+    db.add(firm)
+    await db.flush()
+    user = await userRepository.create(
+        db, firm_id=firm.id, email="partner@repository.test", role="partner"
+    )
+    return scope_for(user)
+
+
+async def test_a_created_job_is_queued_and_not_terminal(db, scope):
+    job = await jobRepository.create(db, scope, job_type="valuation_report", instructions="value it")
     assert job.status == "queued"
     assert job.terminal_at is None
     assert job.is_terminal is False
 
 
-async def test_status_moves_and_terminal_at_is_stamped_on_completion(db):
-    job = await jobRepository.create(db, job_type="rent_roll_report")
+async def test_status_moves_and_terminal_at_is_stamped_on_completion(db, scope):
+    job = await jobRepository.create(db, scope, job_type="rent_roll_report")
 
     await jobRepository.set_status(db, job.id, "processing")
-    assert (await jobRepository.get(db, job.id)).terminal_at is None
+    assert (await jobRepository.get(db, scope, job.id)).terminal_at is None
 
     await jobRepository.set_status(db, job.id, "completed", doc_url="s3://x/y.docx")
-    done = await jobRepository.get(db, job.id)
+    done = await jobRepository.get(db, scope, job.id)
     assert done.status == "completed"
     assert done.doc_url == "s3://x/y.docx"
     assert done.terminal_at is not None
 
 
-async def test_a_terminal_job_refuses_any_further_status_write(db):
+async def test_a_terminal_job_refuses_any_further_status_write(db, scope):
     """
     The guard the sprint plan asks for, and the reason it is at the repository
     layer: from S4 there are several writers, and a rule enforced in one caller
     is a rule the next caller does not know about.
     """
-    job = await jobRepository.create(db)
+    job = await jobRepository.create(db, scope)
     await jobRepository.set_status(db, job.id, "completed", doc_url="s3://x/y.docx")
 
     for attempted in ("failed", "processing", "queued", "completed"):
@@ -105,37 +125,37 @@ async def test_a_terminal_job_refuses_any_further_status_write(db):
         assert str(job.id) in str(excinfo.value)
         assert attempted in str(excinfo.value)
 
-    unchanged = await jobRepository.get(db, job.id)
+    unchanged = await jobRepository.get(db, scope, job.id)
     assert unchanged.status == "completed"
     assert unchanged.doc_url == "s3://x/y.docx"
     assert unchanged.error == ""
 
 
-async def test_a_failed_job_is_equally_final(db):
-    job = await jobRepository.create(db)
+async def test_a_failed_job_is_equally_final(db, scope):
+    job = await jobRepository.create(db, scope)
     await jobRepository.set_status(db, job.id, "failed", error="no comparables")
 
     with pytest.raises(TerminalJobError):
         await jobRepository.set_status(db, job.id, "completed", doc_url="s3://sneaky.docx")
 
-    assert (await jobRepository.get(db, job.id)).status == "failed"
+    assert (await jobRepository.get(db, scope, job.id)).status == "failed"
 
 
-async def test_a_job_interrupted_mid_graph_survives_and_is_reconcilable(db):
+async def test_a_job_interrupted_mid_graph_survives_and_is_reconcilable(db, scope):
     """
     S1 lost this job entirely: `jobs.json` was rewritten from memory on restart.
     Now the row is still there, still `processing`, and countable — which is what
     makes it something S4's sweep can act on rather than something nobody knows
     happened.
     """
-    job = await jobRepository.create(db, job_type="valuation_report")
+    job = await jobRepository.create(db, scope, job_type="valuation_report")
     await jobRepository.set_status(db, job.id, "processing")
 
     # Simulate the restart: a brand new engine, session and connection pool.
     engine = create_async_engine(TEST_DATABASE_URL)
     maker = async_sessionmaker(engine, expire_on_commit=False)
     async with maker() as fresh:
-        survivor = await jobRepository.get(fresh, job.id)
+        survivor = await jobRepository.get(fresh, scope, job.id)
         assert survivor is not None
         assert survivor.status == "processing"
         assert survivor.terminal_at is None
@@ -152,18 +172,18 @@ async def test_an_unknown_job_id_is_a_lookup_error_not_a_silent_no_op(db):
         await jobRepository.set_status(db, uuid.uuid4(), "completed")
 
 
-async def test_the_idempotency_index_is_partial(db):
+async def test_the_idempotency_index_is_partial(db, scope):
     """
     Two jobs may both have no key; two jobs may not share one. Without the
     partial predicate the second unkeyed job would collide (S4 depends on this).
     """
-    await jobRepository.create(db, idempotency_key=None)
-    await jobRepository.create(db, idempotency_key=None)
+    await jobRepository.create(db, scope, idempotency_key=None)
+    await jobRepository.create(db, scope, idempotency_key=None)
 
     key = "a" * 64
-    await jobRepository.create(db, idempotency_key=key)
+    await jobRepository.create(db, scope, idempotency_key=key)
     with pytest.raises(IntegrityError):
-        await jobRepository.create(db, idempotency_key=key)
+        await jobRepository.create(db, scope, idempotency_key=key)
 
 
 async def test_the_gist_index_on_properties_geom_exists(db):
