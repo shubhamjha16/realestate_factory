@@ -27,7 +27,11 @@ from app.configs.dbConfig import Base
 from app.configs.envConfig import settings
 
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+
+# A caller may set the URL programmatically — the test fixture does, to point at
+# a scratch database. Only fall back to the environment when it has not.
+DB_URL = config.get_main_option("sqlalchemy.url", None) or settings.DATABASE_URL
+config.set_main_option("sqlalchemy.url", DB_URL)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
@@ -44,7 +48,7 @@ def _include_object(obj, name, type_, reflected, compare_to):
 
 def run_migrations_offline() -> None:
     context.configure(
-        url=settings.DATABASE_URL,
+        url=DB_URL,
         target_metadata=target_metadata,
         literal_binds=True,
         compare_type=True,
@@ -68,7 +72,7 @@ def _do_run_migrations(connection) -> None:
 
 async def run_migrations_online() -> None:
     connectable = async_engine_from_config(
-        {"sqlalchemy.url": settings.DATABASE_URL},
+        {"sqlalchemy.url": DB_URL},
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )

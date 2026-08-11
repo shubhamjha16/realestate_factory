@@ -14,6 +14,7 @@ schema works.
 
 from __future__ import annotations
 
+import asyncio
 import os
 import uuid
 from datetime import UTC, datetime, timedelta
@@ -38,6 +39,17 @@ pytestmark = [
 ]
 
 
+def _rebuild_schema() -> None:
+    from alembic.config import Config
+
+    from alembic import command
+
+    cfg = Config("alembic.ini")
+    cfg.set_main_option("sqlalchemy.url", TEST_DATABASE_URL)
+    command.downgrade(cfg, "base")
+    command.upgrade(cfg, "head")
+
+
 @pytest_asyncio.fixture
 async def db():
     """
@@ -47,14 +59,9 @@ async def db():
     `alembic upgrade head` succeeds on an empty database, which is S2's first
     exit proof.
     """
-    from alembic.config import Config
-
-    from alembic import command
-
-    cfg = Config("alembic.ini")
-    cfg.set_main_option("sqlalchemy.url", TEST_DATABASE_URL)
-    command.downgrade(cfg, "base")
-    command.upgrade(cfg, "head")
+    # Alembic's env.py calls `asyncio.run()`, which raises inside the loop
+    # pytest-asyncio has already started — so run it on a worker thread.
+    await asyncio.to_thread(_rebuild_schema)
 
     engine = create_async_engine(TEST_DATABASE_URL)
     maker = async_sessionmaker(engine, expire_on_commit=False)
