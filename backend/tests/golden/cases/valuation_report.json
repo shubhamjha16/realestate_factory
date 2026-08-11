@@ -2,5 +2,37 @@
   "job_id": "golden-val-001",
   "job_type": "valuation_report",
   "instructions": "Prepare a valuation_report for bank panel purposes\nClient: Meridian Housing Finance Limited\nProperty: Plot 14, Sector 62, Noida, Uttar Pradesh 201309\nproperty type: residential apartment\nPurpose: loan security assessment\nSubject unit carpet area 1450 sqft on the 6th floor, built 2016, freehold",
-  "property_data": "address,locality,area_sqft,sale_price,sale_date,property_type,floor\nTower A Unit 604 Sector 62,Sector 62 Noida,1420,10650000,2025-11-14,residential apartment,6\nTower B Unit 1102 Sector 62,Sector 62 Noida,1510,11780000,2025-10-02,residential apartment,11\nTower C Unit 302 Sector 61,Sector 61 Noida,1385,9970000,2025-09-19,residential apartment,3\nTower A Unit 1401 Sector 62,Sector 62 Noida,1450,11890000,2026-01-08,residential apartment,14\nTower D Unit 205 Sector 62,Sector 62 Noida,1360,9520000,2025-08-27,residential apartment,2\nTower B Unit 806 Sector 63,Sector 63 Noida,1495,10910000,2025-12-11,residential apartment,8\nTower E Unit 1802 Sector 62,Sector 62 Noida,1620,13770000,2026-02-03,residential apartment,18\nTower C Unit 101 Sector 61,Sector 61 Noida,1300,8580000,2025-07-15,residential apartment,1\n"
+  "property_data": "address,locality,area_sqft,sale_price,sale_date,property_type,floor\nTower A Unit 604 Sector 62,Sector 62 Noida,1420,10650000,2025-11-14,residential apartment,6\nTower B Unit 1102 Sector 62,Sector 62 Noida,1510,11780000,2025-10-02,residential apartment,11\nTower C Unit 302 Sector 61,Sector 61 Noida,1385,9970000,2025-09-19,residential apartment,3\nTower A Unit 1401 Sector 62,Sector 62 Noida,1450,11890000,2026-01-08,residential apartment,14\nTower D Unit 205 Sector 62,Sector 62 Noida,1360,9520000,2025-08-27,residential apartment,2\nTower B Unit 806 Sector 63,Sector 63 Noida,1495,10910000,2025-12-11,residential apartment,8\nTower E Unit 1802 Sector 62,Sector 62 Noida,1620,13770000,2026-02-03,residential apartment,18\nTower C Unit 101 Sector 61,Sector 61 Noida,1300,8580000,2025-07-15,residential apartment,1\n",
+  "property_id": "prop-golden-val-001",
+  "evidence": {
+    "property_id": "prop-golden-val-001",
+    "document_kinds": [
+      "encumbrance_cert",
+      "plan",
+      "tax_receipt",
+      "title_deed"
+    ],
+    "title_chain_length": 3,
+    "title_chain_has_gap": false,
+    "encumbrance_count": 1,
+    "subsisting_encumbrances": 0,
+    "approvals": [
+      "cc",
+      "oc"
+    ],
+    "document_ids_by_kind": {
+      "title_deed": [
+        "doc-td-1"
+      ],
+      "encumbrance_cert": [
+        "doc-ec-1"
+      ],
+      "plan": [
+        "doc-plan-1"
+      ],
+      "tax_receipt": [
+        "doc-tax-1"
+      ]
+    }
+  }
 }

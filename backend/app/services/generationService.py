@@ -24,15 +24,36 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.configs.envConfig import settings
 from app.repositories import jobRepository
 from app.repositories.jobRepository import TerminalJobError
+from app.services.access.scope import FirmScope
 from app.utils.logger import get_logger
 from app.utils.redisClient import redis_settings
 
 logger = get_logger(__name__)
 
 
-def initial_state(job_id: str, instructions: str, property_data: str | None, job_type: str | None) -> dict:
-    """The graph's state is a TypedDict with no defaults; every key is seeded here."""
+def initial_state(
+    job_id: str,
+    instructions: str,
+    property_data: str | None,
+    job_type: str | None,
+    *,
+    property_id: str | None = None,
+    evidence_bundle: dict | None = None,
+) -> dict:
+    """
+    The graph's state is a TypedDict with no defaults; every key is seeded here.
+
+    `evidence_bundle` is assembled here rather than inside the graph (S8): the
+    graph stays synchronous and free of database access, and the bundle comes
+    from a scoped repository call rather than anything a caller can supply.
+    """
     return {
+        "property_id": property_id,
+        "evidence_bundle": evidence_bundle,
+        "evidence_checked": False,
+        "evidence_missing": None,
+        "_blocked": False,
+        "_scope": None,
         "raw_instructions": instructions,
         "raw_property_data": property_data or "",
         "job_type": job_type,
@@ -52,15 +73,54 @@ def initial_state(job_id: str, instructions: str, property_data: str | None, job
     }
 
 
-def run_graph(job_id: str, instructions: str, property_data: str | None, job_type: str | None) -> dict:
+def run_graph(
+    job_id: str,
+    instructions: str,
+    property_data: str | None,
+    job_type: str | None,
+    *,
+    property_id: str | None = None,
+    evidence_bundle: dict | None = None,
+) -> dict:
     """Pure invocation, no persistence."""
     from app.services.graph.reGraph import app as graph
 
     # REState is a TypedDict on a module excluded from mypy; S10 gives the graph
     # a typed builder and this ignore goes away.
     return graph.invoke(  # type: ignore[call-overload]
-        initial_state(job_id, instructions, property_data, job_type)
+        initial_state(
+            job_id, instructions, property_data, job_type,
+            property_id=property_id, evidence_bundle=evidence_bundle,
+        )
     )
+
+
+async def evidence_bundle_for(
+    db: AsyncSession, scope: FirmScope, property_id: uuid.UUID | None
+) -> dict | None:
+    """
+    What the property carries, for S8's gate.
+
+    `None` when there is no property. The gate treats that as a failure for any
+    deliverable that asserts facts — an absent property is the reason the check
+    fails, not a reason to skip it.
+    """
+    if property_id is None:
+        return None
+
+    from app.repositories import documentRepository
+
+    bundle = await documentRepository.bundle_for(db, scope, property_id)
+    return {
+        "property_id": bundle.property_id,
+        "document_kinds": sorted(bundle.document_kinds),
+        "title_chain_length": bundle.title_chain_length,
+        "title_chain_has_gap": bundle.title_chain_has_gap,
+        "encumbrance_count": bundle.encumbrance_count,
+        "subsisting_encumbrances": bundle.subsisting_encumbrance_count,
+        "approvals": sorted(bundle.approval_kinds),
+        "document_ids_by_kind": bundle.document_ids_by_kind,
+    }
 
 
 async def enqueue(
@@ -95,6 +155,9 @@ async def execute(
     instructions: str,
     property_data: str | None,
     job_type: str | None,
+    *,
+    scope: FirmScope | None = None,
+    property_id: uuid.UUID | None = None,
 ) -> None:
     """Run one generation to a terminal state. Called by the worker."""
     try:
@@ -103,12 +166,32 @@ async def execute(
         logger.warning("job %s was already terminal; not re-running", job_id)
         return
 
+    bundle = (
+        await evidence_bundle_for(db, scope, property_id) if scope is not None else None
+    )
+
     try:
         # The graph is synchronous and CPU/IO bound in equal measure; off the
         # loop so one long valuation does not stall the worker's other jobs.
         final = await asyncio.to_thread(
-            run_graph, str(job_id), instructions, property_data, job_type
+            lambda: run_graph(
+                str(job_id), instructions, property_data, job_type,
+                property_id=str(property_id) if property_id else None,
+                evidence_bundle=bundle,
+            )
         )
+
+        # S8: the gate ended the job. `blocked_evidence` is a terminal state of
+        # its own, not a failure — nothing went wrong, the evidence was not there.
+        if final.get("_blocked"):
+            await jobRepository.set_status(
+                db, job_id, "blocked_evidence",
+                error=str(final.get("generation_errors") or "blocked on evidence"),
+            )
+            logger.warning("job %s blocked on evidence", job_id)
+            await _notify(db, job_id)
+            return
+
         url = final.get("doc_url") or ""
         if url:
             await jobRepository.set_status(db, job_id, "completed", doc_url=url)

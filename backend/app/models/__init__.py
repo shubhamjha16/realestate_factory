@@ -24,7 +24,25 @@ from app.models.mandate import (
     Mandate,
 )
 from app.models.property import TENURES, Property
+from app.models.propertyDocument import (
+    APPROVAL_KINDS,
+    DOCUMENT_KINDS,
+    ENCUMBRANCE_KINDS,
+    Approval,
+    Encumbrance,
+    PropertyDocument,
+    TitleChainEntry,
+)
 from app.models.user import USER_ROLES, User
+from app.models.valuation import (
+    APPROACH_METHODS,
+    VALUATION_BASES,
+    VALUATION_PREMISES,
+    VALUATION_STATUSES,
+    Valuation,
+    ValuationApproach,
+    ValuationLine,
+)
 
 __all__ = [
     "Area",
@@ -48,4 +66,18 @@ __all__ = [
     "TERMINAL_STATUSES",
     "Property",
     "TENURES",
+    "PropertyDocument",
+    "DOCUMENT_KINDS",
+    "TitleChainEntry",
+    "Encumbrance",
+    "ENCUMBRANCE_KINDS",
+    "Approval",
+    "APPROVAL_KINDS",
+    "Valuation",
+    "ValuationApproach",
+    "ValuationLine",
+    "VALUATION_BASES",
+    "VALUATION_PREMISES",
+    "VALUATION_STATUSES",
+    "APPROACH_METHODS",
 ]

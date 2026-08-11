@@ -112,6 +112,12 @@ terminal one alone.
   seeded `verified: false` from commonly cited values and **refuse to be used
   without an explicit opt-in** — verifying them against notified schedules is
   §11.2, still unassigned.
+- **The evidence gate has no bypass.** `validators/evidenceValidator.enforce`
+  takes no `force`, `allow_missing` or `strict` parameter, and a test asserts
+  that by inspecting its signature. Adding one would change what this product is.
+- **Approaches are reconciled, never averaged.** Weights sum to 1, each carries a
+  rationale, and approaches that diverge beyond the threshold are refused rather
+  than split down the middle.
 - **The trimmed mean is a sanity statistic, not a conclusion.** It survives as
   `trimmed_mean_rate_sanity_only`. Nothing in the codebase returns a key a caller
   could mistake for a value conclusion.
@@ -160,13 +166,21 @@ terminal one alone.
 | S5 | Auth, firms, mandates, tenancy | done |
 | S6 | Decimal migration, units, parser hardening | done |
 | S7 | The comparable adjustment grid | done |
-| S8 | The evidence gate | next |
+| S8 | The evidence gate | done |
+| S9 | Three approaches and their reconciliation | done |
+| S10 | Split `re_graph.py` + golden-set harness | next — Phase 2 begins |
 
 The unadjusted mean is gone. A valuation now comes from an adjustment grid where
 every comparable carries a written rationale per factor, and the sample is
 refused if it is too small, too old, too far away, or still disagrees after
 adjustment.
 
-**One S7 exit proof is outstanding and cannot be met in code:** "an
-IBBI-registered valuer reviews one full grid and signs it." The grid is built and
-the arithmetic is tested; the professional review is a person's job.
+Phase 1 is complete. A valuation now rests on an adjustment grid, is refused
+when the evidence does not support it, and is concluded by reconciling three
+approaches rather than by any single number.
+
+**Two exit proofs are outstanding and cannot be met in code**, both of which ask
+for a person: S7's "an IBBI-registered valuer reviews one full grid and signs it"
+and S9's "a valuer compares the reconciled figure against their own manual
+working". The arithmetic is built and tested; the professional review is not
+something the repository can do to itself.

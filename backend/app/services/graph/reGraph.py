@@ -15,6 +15,7 @@ from groq import Groq
 
 from app.configs import jobTypes as config
 from app.configs.envConfig import settings
+from app.services.graph.nodes.evidenceCheck import evidence_check_node, evidence_route
 from app.services.ingest.propertyDataParser import parse_property_data
 from app.services.ingest.result import MalformedInputError, UnrecognisedFormatError
 from app.services.valuation.money import format_inr, try_decimal
@@ -54,6 +55,16 @@ class REState(TypedDict):
     # Property data
     parsed_data:        Optional[dict]
     computed:           Optional[dict]
+
+    # Tenancy and subject, for the evidence gate (S8)
+    property_id:        Optional[str]
+    _scope:             Optional[object]
+
+    # Evidence gate
+    evidence_checked:   bool
+    evidence_bundle:    Optional[dict]
+    evidence_missing:   Optional[List[str]]
+    _blocked:           bool
 
     # Research
     re_research:        Optional[str]
@@ -209,6 +220,18 @@ def vision_node(state: REState) -> dict:
 # ══════════════════════════════════════════════════════════════════════════════
 # ROUTING after vision
 # ══════════════════════════════════════════════════════════════════════════════
+
+def _gated_route(state: REState) -> str:
+    """
+    The evidence gate and the path choice, in one decision.
+
+    Combined deliberately: two routers off the same node could disagree, and the
+    disagreement would be a path around the gate.
+    """
+    if evidence_route(state) == "blocked":
+        return "blocked"
+    return _vision_route(state)
+
 
 def _vision_route(state: REState) -> str:
     doc_type = _safe(state, "doc_type", "")
@@ -593,6 +616,56 @@ def agreement_drafter_node(state: REState) -> dict:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# EVIDENCE — post-draft scan
+# ══════════════════════════════════════════════════════════════════════════════
+
+def evidence_scan_node(state: REState) -> dict:
+    """
+    The second half of the gate: what the model actually wrote.
+
+    Pre-flight proved the property carries what the deliverable will need. This
+    proves the drafted text asserts nothing beyond it — "clear and marketable
+    title" is blocked when no chain exists, whatever the prompt said. Prompt
+    instructions are a request; this is the enforcement.
+    """
+    from app.validators.evidenceValidator import EvidenceBundle, scan_assertions
+
+    clauses = _safe(state, "clause_plan", [])
+    if not clauses or not state.get("evidence_bundle"):
+        return {}
+
+    summary = state["evidence_bundle"]
+    bundle = EvidenceBundle(
+        property_id=summary.get("property_id", ""),
+        document_kinds=frozenset(summary.get("document_kinds", [])),
+        title_chain_length=summary.get("title_chain_length", 0),
+        title_chain_has_gap=summary.get("title_chain_has_gap", False),
+        subsisting_encumbrance_count=summary.get("subsisting_encumbrances", 0),
+        approval_kinds=frozenset(summary.get("approvals", [])),
+        document_ids_by_kind=summary.get("document_ids_by_kind", {}),
+    )
+
+    drafted = "\n\n".join(str(c.get("content", "")) for c in clauses)
+    missing = scan_assertions(drafted, bundle)
+    if not missing:
+        return {}
+
+    described = [m.describe() for m in missing]
+    return {
+        "evidence_missing": described,
+        "generation_errors": (
+            "blocked_evidence: the draft asserts facts with nothing behind them.\n"
+            + "\n".join(f"  · {d}" for d in described)
+        ),
+        "_blocked": True,
+    }
+
+
+def _evidence_scan_route(state: REState) -> str:
+    return "blocked" if state.get("_blocked") else "renderer"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # RENDERER / HEALER / UPLOAD
 # ══════════════════════════════════════════════════════════════════════════════
 
@@ -662,6 +735,8 @@ g.add_node("property_data_parser",     property_data_parser_node)
 g.add_node("valuation_calculator",     valuation_calculator_node)
 g.add_node("research",                 research_node)
 g.add_node("vision",                   vision_node)
+g.add_node("evidence_check",           evidence_check_node)
+g.add_node("evidence_scan",            evidence_scan_node)
 g.add_node("rec_renderer",             rec_renderer_node)
 g.add_node("valuation_structure",      valuation_structure_node)
 g.add_node("valuation_critic",         valuation_critic_node)
@@ -680,15 +755,20 @@ g.add_edge("property_data_parser", "valuation_calculator")
 g.add_edge("valuation_calculator", "research")
 g.add_edge("research",             "vision")
 
-g.add_conditional_edges("vision", _vision_route, {
+# S8: the gate sits before the structure nodes, so a property that cannot
+# support the report is refused before a token is spent drafting one. `blocked`
+# ends the graph — there is deliberately no edge around it.
+g.add_edge("vision", "evidence_check")
+g.add_conditional_edges("evidence_check", _gated_route, {
+    "blocked":             END,
     "rec_renderer":        "rec_renderer",
     "valuation_structure": "valuation_structure",
     "compliance_structure": "compliance_structure",
     "agreement_drafter":   "agreement_drafter",
 })
 
-# Reconciliation path — straight to upload
-g.add_edge("rec_renderer", "renderer")
+# Reconciliation path — a rent roll states figures, not facts about title.
+g.add_edge("rec_renderer", "evidence_scan")
 
 # Valuation path
 g.add_edge("valuation_structure", "valuation_critic")
@@ -698,7 +778,7 @@ g.add_conditional_edges("valuation_critic", _valuation_critic_route, {
 })
 g.add_conditional_edges("section_drafter", _section_drafter_route, {
     "section_drafter": "section_drafter",
-    "renderer":        "renderer",
+    "renderer":        "evidence_scan",
 })
 
 # Compliance path
@@ -707,10 +787,17 @@ g.add_conditional_edges("compliance_critic", _compliance_critic_route, {
     "compliance_structure": "compliance_structure",
     "compliance_drafter":   "compliance_drafter",
 })
-g.add_edge("compliance_drafter", "renderer")
+g.add_edge("compliance_drafter", "evidence_scan")
 
 # Agreement path
-g.add_edge("agreement_drafter", "renderer")
+g.add_edge("agreement_drafter", "evidence_scan")
+
+# S8, second half: what the model actually wrote. An assertion with nothing
+# behind it ends the job here rather than being softened into hedged prose.
+g.add_conditional_edges("evidence_scan", _evidence_scan_route, {
+    "blocked":  END,
+    "renderer": "renderer",
+})
 
 # Shared convergence
 g.add_conditional_edges("renderer", _renderer_route, {

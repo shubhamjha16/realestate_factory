@@ -49,7 +49,7 @@ drift fails. See `backend/tests/golden/README.md`.
 
 ## Where this is
 
-**S7 of 21 is complete — Phase 0 and the core of Phase 1 are done.**
+**S9 of 21 is complete — Phase 0 and Phase 1 are done.**
 
 - **S1** — the monorepo split, typed configuration, and the golden harness that
   proves the split changed nothing.
@@ -94,8 +94,20 @@ The raw rates disagreed by 25.3%; after adjustment they agree within 3.1%. That
 narrowing is the evidence the grid is doing defensible work, and it is what a
 reviewer reads.
 
-**S8 is next: the evidence gate.** Until it lands, a report can still assert a
-fact about title that no document supports.
+- **S8** — the evidence gate. Every assertion of legal or physical fact must
+  resolve to a document, a title chain entry, an encumbrance or an approval. A
+  valuation for a property with no encumbrance certificate terminates as
+  `blocked_evidence` before a token is spent; "clear and marketable title" with
+  no chain behind it blocks the render. **The gate has no bypass flag**, and a
+  test asserts that by inspecting the function's signature.
+- **S9** — the income and cost approaches as first-class methods, and
+  reconciliation. Weights must sum to 1 and each carries a written rationale.
+  The mandate's basis and purpose decide which approaches are mandatory: a
+  lending valuation of a tenanted property cannot be concluded on comparable
+  sales alone, and an insurable value cannot lean on market evidence at all.
+
+**S10 is next, and Phase 2 begins**: splitting the 686-line graph and growing
+the golden set to one fixture per job type.
 
 The plan, including what is structurally wrong today and the order it gets
 fixed, is in `REALESTATE_FACTORY_SPRINTS.md`. `CLAUDE.md` is how to work in the

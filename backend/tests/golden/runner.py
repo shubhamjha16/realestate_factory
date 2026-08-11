@@ -132,6 +132,15 @@ def run_case(case_name: str, target: str, mode: str, output_dir: Path) -> dict:
     graph_module._chat = tape.chat
 
     final = graph_module.app.invoke({
+        # S8: the evidence the fixture's property carries. In production this is
+        # assembled by generationService from a scoped repository call; here the
+        # fixture supplies it, and the gate evaluates it exactly the same way.
+        "property_id": case.get("property_id"),
+        "evidence_bundle": case.get("evidence"),
+        "evidence_checked": False,
+        "evidence_missing": None,
+        "_blocked": False,
+        "_scope": None,
         "raw_instructions": case["instructions"],
         "raw_property_data": case.get("property_data", ""),
         "job_type": case.get("job_type"),
