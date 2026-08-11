@@ -42,10 +42,12 @@ jobs:
         run: uv run pytest -q
 
       # A dependency added without re-exporting requirements.txt fails here.
+      # The comparison drops comment lines: uv writes the output path into the
+      # file's own header, so a temp-file export never matches byte for byte.
       - name: requirements.txt is in sync with uv.lock
         run: |
           uv export --no-hashes --no-dev --no-emit-project -o /tmp/requirements.txt
-          diff -u requirements.txt /tmp/requirements.txt
+          diff -u <(grep -v '^#' requirements.txt) <(grep -v '^#' /tmp/requirements.txt)
 
       - name: dependency audit
         run: uv run --with pip-audit pip-audit --strict -r requirements.txt
