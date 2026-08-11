@@ -140,6 +140,7 @@ async def sample_mandate_setup(db):
     await db.flush()
 
     comp = Comparable(
+        firm_id=firm_id,
         property_id=prop.id,
         source="market_registry",
         address="Tower A Sector 62, Noida",
@@ -182,6 +183,7 @@ async def sample_mandate_setup(db):
     await db.flush()
 
     doc = PropertyDocument(
+        firm_id=firm_id,
         property_id=prop.id,
         kind="title_deed",
         s3_key="documents/prop-1/title_deed.pdf",
